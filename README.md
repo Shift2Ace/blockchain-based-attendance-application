@@ -5,3 +5,8 @@ Register page:
 Login page:
 
 Attendance page: 
+
+# Block Structure
+```
+
+```
