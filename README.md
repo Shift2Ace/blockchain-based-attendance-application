@@ -7,7 +7,7 @@ Login page:
 Attendance page: 
 
 # Block Structure
-```
+```json
 { // Block
   "index": 0, // (first block: 0)
   "previousHash": "0", // (hash of previous block, first block is 0) (64 bytes)
