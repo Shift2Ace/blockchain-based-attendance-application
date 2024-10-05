@@ -47,14 +47,6 @@ Back End
     - Event signature
     - Student signature
 
-# Create Wallet
-1. Create wallet from password, output unique wallet id
-2. Create address(unique) with wallet id and password
-
-# Add node
-1. New node get `node list` from any node
-2. Send `url` to each node
-
 # Wallet
 - ID
 - Password Hash
@@ -64,13 +56,13 @@ Back End
   - Secret Key
   - Public Key
 
-# Network
-- HTTP server
-  - join nodes
-  - get info
-  - send info
- 
+# Create Wallet
+1. Create wallet from password, output unique wallet id
+2. Create address(unique) with wallet id and password
 
+# Add node
+1. New node get `node list` from any node
+2. Send `url` to each node
 
 # Install Node Modules
 ```
