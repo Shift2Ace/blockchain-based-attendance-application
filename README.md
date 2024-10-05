@@ -58,5 +58,5 @@ docker build -t blockchain-based-attendance-application .
 ```
 Run Docker container
 ```
-docker run -p 3000:3000 blockchain-based-attendance-application
+docker run --name blockchain-based-attendance-application -p blockchain-based-attendance-application
 ```
