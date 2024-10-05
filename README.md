@@ -15,18 +15,31 @@ Attendance page:
   - Miner
 - Records
   - Inputs[10]
+    - Transaction
+    - Index
     - Address
     - Amount
+    - Signature
   - Outputs[]
     - Address
     - Amount
   - Attendance[10]
     - Timestamp
+    - Address
     - Student id
     - Event id
     - Event holder
     - Event signature
     - Student signature
+
+# Wallet
+- ID
+- Password Hash
+- Secert
+- KeyPairs[2]
+  - Index
+  - Secret Key
+  - Public Key
 
 # Network
 - HTTP server
