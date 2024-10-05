@@ -52,7 +52,11 @@ Attendance page:
   3. Connected node send `IP address` of new node to other node
 
 # Build Docker
+Build the Docker image
 ```
 docker build -t blockchain-based-attendance-application .
+```
+Run Docker container
+```
 docker run -p 3000:3000 blockchain-based-attendance-application
 ```
