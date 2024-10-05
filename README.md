@@ -2,7 +2,7 @@
 Front End
 - Blockchain
   - Get blockchain
-  - Get transaction
+  - Get transaction/record
   - Take attendance
   - Mine new block
 - Wallet
@@ -12,6 +12,8 @@ Front End
   - Get balance
 - Node
   - Get nodes list
+- Mine (hide)
+  - Control Panel
 
 Back End
 - Blockchain
@@ -27,7 +29,7 @@ Back End
   - Nonce
   - Miner
 - Records
-  - Inputs[10]
+  - Inputs[]
     - Transaction
     - Index
     - Address
@@ -36,7 +38,7 @@ Back End
   - Outputs[]
     - Address
     - Amount
-  - Attendance[10]
+  - Attendance
     - Timestamp
     - Address
     - Student id
