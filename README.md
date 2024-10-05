@@ -52,6 +52,14 @@ Attendance page:
   2. New node get `node list` from any node
   3. Connected node send `IP address` of new node to other node
 
+# Install Node Modules
+```
+npm install
+```
+```
+npm install lodash
+```
+
 # Build Docker
 Build the Docker image
 ```
