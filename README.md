@@ -1,10 +1,23 @@
-# blockchain-based-attendance-application
+# Web Page Structure
+Front End
+- Blockchain
+  - Get blockchain
+  - Get transaction
+  - Take attendance
+  - Mine new block
+- Wallet
+  - Create wallet
+  - Create address
+  - Create transaction
+  - Get balance
+- Node
+  - Get nodes list
 
-Register page:
-
-Login page:
-
-Attendance page: 
+Back End
+- Blockchain
+  - Update the latest block
+- Node
+  - Connect to new node
 
 # Block Structure
 - Block Header
@@ -31,6 +44,10 @@ Attendance page:
     - Event holder
     - Event signature
     - Student signature
+
+# Create Wallet
+1. Create wallet from password, output unique wallet id
+2. Create address(unique) with wallet id and password
 
 # Wallet
 - ID
