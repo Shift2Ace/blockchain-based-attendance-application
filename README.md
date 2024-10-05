@@ -43,6 +43,7 @@ Attendance page:
 
 # Network
 - HTTP server
+  - join nodes
   - get info
   - send info
  
