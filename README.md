@@ -17,7 +17,7 @@ Back End
 - Blockchain
   - Update the latest block
 - Node
-  - Connect to new node
+  - Send address(url)
 
 # Block Structure
 - Block Header
@@ -49,6 +49,10 @@ Back End
 1. Create wallet from password, output unique wallet id
 2. Create address(unique) with wallet id and password
 
+# Add node
+1. New node get `node list` from any node
+2. Send `url` to each node
+
 # Wallet
 - ID
 - Password Hash
@@ -64,10 +68,7 @@ Back End
   - get info
   - send info
  
-# Add node
-  1. New node send `IP address` to any node
-  2. New node get `node list` from any node
-  3. Connected node send `IP address` of new node to other node
+
 
 # Install Node Modules
 ```
