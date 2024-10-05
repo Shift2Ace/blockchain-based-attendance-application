@@ -13,15 +13,7 @@ Attendance page:
   - Merkle Root
   - Nonce
   - Miner
-- Records[]
-  - ID
-  - Type (take attendance / transaction / rew)
-  - user address
-  - class
-    - id
-    - address
-    - sign
-  - receiver address
+- Records
   - Inputs[10]: sender
     - Address
     - Amount
