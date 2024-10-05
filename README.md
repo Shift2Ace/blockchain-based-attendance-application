@@ -22,7 +22,17 @@ Attendance page:
     - address
     - sign
   - receiver address
-  - Inputs[]: sender
+  - Inputs[10]: sender
+    - Address
+    - Amount
   - Outputs[]: reciver
+    - Address
+    - Amount
+  - Attendance[10]
+    - Time
+    - Student address
+    - class id
+    - class signature
+    - Student signature
 
 
