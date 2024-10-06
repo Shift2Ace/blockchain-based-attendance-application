@@ -11,6 +11,7 @@ Front End
   - Create transaction
   - Get balance
 - Node
+  - Connect Nodes (hide)
   - Get nodes list
 - Mine (hide)
   - Control Panel
@@ -19,7 +20,6 @@ Back End
 - Blockchain
   - Update the latest block
 - Node
-  - Connect Nodes
   - Send address(url)
 
 # Block Structure
