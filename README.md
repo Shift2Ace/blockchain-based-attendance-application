@@ -4,7 +4,6 @@ Front End
   - Get blockchain
   - Get transaction/record
   - Take attendance
-  - Mine new block
 - Wallet
   - Create wallet
   - Create address
