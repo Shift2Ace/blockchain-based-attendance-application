@@ -2,12 +2,14 @@
 Front End
 - Blockchain
   - Get blockchain
-  - Get transaction/record
+- Attendance
+  - Get attendance record
   - Take attendance
 - Wallet
   - Create wallet
   - Create address
   - Create transaction
+  - Get transaction
   - Get balance
 - Node
   - Connect Nodes (hide)
