@@ -19,6 +19,7 @@ Back End
 - Blockchain
   - Update the latest block
 - Node
+  - Connect Nodes
   - Send address(url)
 
 # Block Structure
