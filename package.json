@@ -1,0 +1,21 @@
+{
+  "name": "blockchain-based-attendance-application",
+  "version": "1.0.0",
+  "description": "Register page:",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "blockchain-based-attendance-application": "file:",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "lodash": "^4.17.21",
+    "react-router-dom": "^6.26.2"
+  }
+}
