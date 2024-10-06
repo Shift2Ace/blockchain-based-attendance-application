@@ -2,15 +2,17 @@
 Front End
 - Blockchain
   - Get blockchain
-  - Get transaction/record
+- Attendance
+  - Get attendance record
   - Take attendance
-  - Mine new block
 - Wallet
   - Create wallet
   - Create address
   - Create transaction
+  - Get transaction
   - Get balance
 - Node
+  - Connect Nodes (hide)
   - Get nodes list
 - Mine (hide)
   - Control Panel
@@ -19,7 +21,6 @@ Back End
 - Blockchain
   - Update the latest block
 - Node
-  - Connect Nodes
   - Send address(url)
 
 # Block Structure
