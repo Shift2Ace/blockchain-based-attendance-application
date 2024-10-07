@@ -68,7 +68,7 @@ Back End
 
 # Install Node Modules
 ```
-npm install
+npm install --dependencies
 ```
 
 
