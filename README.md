@@ -70,9 +70,7 @@ Back End
 ```
 npm install
 ```
-```
-npm install lodash
-```
+
 
 # Build Docker
 Build the Docker image
