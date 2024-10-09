@@ -9,6 +9,10 @@
   "directories": {
     "test": "test"
   },
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "dependencies": {
     "ansi-regex": "^5.0.1",
     "ansi-styles": "^4.3.0",
