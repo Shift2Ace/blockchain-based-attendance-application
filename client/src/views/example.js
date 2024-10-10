@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './css/example.css';
 import MenuBar from './components/menu';
-
+import config from './components/config.json';
 
 const ExamplePage = () => {
 
@@ -18,7 +18,7 @@ const ExamplePage = () => {
     console.log(formData);
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/test', {
+      const response = await fetch(`${config.API_URL}/api/test`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
