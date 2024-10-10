@@ -1,0 +1,29 @@
+/* MenuBar.css */
+.menu-bar {
+    background-color: #333;
+    padding: 10px;
+  }
+  
+  .menu-bar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .menu-bar li {
+    display: inline;
+  }
+  
+  .menu-bar a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    display: block;
+  }
+  
+  .menu-bar a:hover {
+    background-color: #575757;
+  }
+  
