@@ -38,8 +38,9 @@ const ExamplePage = () => {
     
   // Render the form
   return (
-    <div className="form-container">
-      
+    <div>
+      <MenuBar />
+      <div className="form-container">
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -58,6 +59,8 @@ const ExamplePage = () => {
         <button type="submit">Submit</button>
       </form>
     </div>
+    </div>
+    
   );
 };
 
