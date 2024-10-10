@@ -13,8 +13,30 @@ app.use((req, res, next) => {
   next()
 });
 
+const allowedIPs = ['127.0.0.1', '::1', '192.168.1.75','::ffff:192.168.1.75'];
+
+const ipFilter_post = (req, res, next) => {
+  const forwardedFor = req.headers['x-forwarded-for'];
+  console.log(forwardedFor," post required")
+  if (allowedIPs.includes(forwardedFor)) {
+    next();
+  } else {
+    res.status(403).send('Access forbidden: your IP is not allowed');
+  }
+};
+
+const ipFilter_get = (req, res, next) => {
+  const ip = req.ip || req.connection.remoteAddress;
+  console.log(ip," get required")
+  if (allowedIPs.includes(ip)) {
+    next();
+  } else {
+    res.status(403).send('Access forbidden: your IP is not allowed');
+  }
+};
+
 // upload name and email to data/test.json
-app.post('/api/test', (req, res) => {
+app.post('/api/test',ipFilter_post, (req, res) => {
   // get data
   const data = req.body;
   // show data
@@ -23,7 +45,7 @@ app.post('/api/test', (req, res) => {
   fs.readFile('data/test.json', 'utf8', (err, jsonString) => {
     if (err) {
       console.log('File read failed:', err);
-      return res.status(500).send('Internal Server Error');
+      return res.status(500).send('Internal Server Error');s
     }
     const jsonData = JSON.parse(jsonString || '[]');
     // push data
@@ -42,6 +64,11 @@ app.post('/api/test', (req, res) => {
 // index page of server
 app.get('/', (req, res) => {
     res.send('Server in running ...');
+});
+
+// limit only localhost access this page
+app.get('/local-limit-test', ipFilter_get,(req, res) => {
+  res.send('localhost access only');
 });
 
 app.listen(port, () => {
