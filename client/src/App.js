@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
 function App() {
+  // create container
   const [formData, setFormData] = useState({ name: '', email: '' });
-
+  // update container
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  // submit container to server
   const handleSubmit = async (e) => {
     console.log(formData)
     e.preventDefault();
@@ -19,7 +20,7 @@ function App() {
         body: JSON.stringify(formData),
       });
   
-      if (response.ok) { // Now this should work
+      if (response.ok) {
         alert('Data submitted successfully');
       } else {
         console.error(response.statusText);
@@ -29,6 +30,7 @@ function App() {
     }
   };
 
+  // document
   return (
     <div>
       <form onSubmit={handleSubmit}>
