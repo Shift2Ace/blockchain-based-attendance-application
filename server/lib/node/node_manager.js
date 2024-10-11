@@ -21,6 +21,13 @@ function addNode(host, port, callback) {
       return callback(parseErr);
     }
 
+    // Check if the node already exists
+    const nodeExists = nodeList.some(node => node.host === host && node.port === port);
+    if (nodeExists) {
+      console.log('Node already exists:', { host, port, url });
+      return callback(null, { status: 'exists', node: { host, port, url } });
+    }
+
     // Add the new node object to the list
     nodeList.push({ host, port, url });
 
@@ -31,7 +38,7 @@ function addNode(host, port, callback) {
       }
 
       console.log('Node added successfully:', { host, port, url });
-      callback(null, { host, port, url });
+      callback(null, { status: 'success', node: { host, port, url } });
     });
   });
 }
