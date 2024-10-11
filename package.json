@@ -1,6 +1,7 @@
 {
   "devDependencies": {
-    "concurrently": "^9.0.1"
+    "concurrently": "^9.0.1",
+    "webpack-dev-server": "^5.1.0"
   },
   "name": "blockchain-based-attendance-application",
   "version": "1.0.0",
