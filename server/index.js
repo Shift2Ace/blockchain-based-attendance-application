@@ -13,22 +13,26 @@ app.use((req, res, next) => {
   next()
 });
 
-const allowedIPs = ['127.0.0.1', '::1', '192.168.1.75','::ffff:192.168.1.75'];
 
-const ipFilter_post = (req, res, next) => {
-  const forwardedFor = req.headers['x-forwarded-for'];
-  console.log(forwardedFor," post required")
-  if (allowedIPs.includes(forwardedFor)) {
+
+const allowed_url = ['http://localhost:3000/', 'http://192.168.1.75:3000/'];
+
+// Only can post through the allowed host
+const allowed_url_limiter = (req, res, next) => {
+  const referer = req.get('Referer');
+  console.log(referer)
+  if (allowed_url.includes(referer)) {
     next();
   } else {
     res.status(403).send('Access forbidden: your IP is not allowed');
   }
 };
 
-const ipFilter_get = (req, res, next) => {
-  const ip = req.ip || req.connection.remoteAddress;
-  console.log(ip," get required")
-  if (allowedIPs.includes(ip)) {
+// Only can post through the localhost
+const localhost_limiter = (req, res, next) => {
+  const referer = req.get('Referer');
+  console.log(referer)
+  if (referer == 'http://localhost:3000/')  {
     next();
   } else {
     res.status(403).send('Access forbidden: your IP is not allowed');
@@ -36,7 +40,7 @@ const ipFilter_get = (req, res, next) => {
 };
 
 // upload name and email to data/test.json
-app.post('/api/test',ipFilter_post, (req, res) => {
+app.post('/api/test',allowed_url_limiter, (req, res) => {
   // get data
   const data = req.body;
   // show data
@@ -63,13 +67,21 @@ app.post('/api/test',ipFilter_post, (req, res) => {
 
 // index page of server
 app.get('/', (req, res) => {
-    res.send('Server in running ...');
+  console.log(req)
+  fs.readFile('./data/server_status.json', 'utf8', (err, data) => {
+      if (err) {
+          res.status(500).json({ error: 'Error reading file' });
+          return;
+      }
+      try {
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+      } catch (parseErr) {
+          res.status(500).json({ error: 'Error parsing JSON' });
+      }
+  });
 });
 
-// limit only localhost access this page
-app.get('/local-limit-test', ipFilter_get,(req, res) => {
-  res.send('localhost access only');
-});
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
