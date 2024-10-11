@@ -66,7 +66,7 @@ app.post('/api/test',allowed_url_limiter, (req, res) => {
   });
 });
 
-// index page of server
+// index page of server / get the server_status.json
 app.get('/', (req, res) => {
   fs.readFile('./data/server_status.json', 'utf8', (err, data) => {
       if (err) {
@@ -124,6 +124,7 @@ app.post('/node/connect_new',localhost_limiter, (req, res) => {
   });
 });
 
+// add new url to the list of node (done)
 app.post('/node/add_new', (req, res) => {
   const { host, port } = req.body;
   nodeManager.addNode(host, port, (err, url) => {
@@ -135,6 +136,7 @@ app.post('/node/add_new', (req, res) => {
   });
 });
 
+// get the list of node (done)
 app.get('/node/list', (req, res) => {
   fs.readFile('./data/node_list.json', 'utf8', (err, data) => {
       if (err) {
