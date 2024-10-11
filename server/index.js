@@ -1,8 +1,9 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
-const port = 5000;
-
+const path = require('path');
+const server_port = 5000;
+const nodeManager = require('./lib/node/node_manager');
 app.use(express.json());
 
 // allow access
@@ -67,7 +68,6 @@ app.post('/api/test',allowed_url_limiter, (req, res) => {
 
 // index page of server
 app.get('/', (req, res) => {
-  console.log(req)
   fs.readFile('./data/server_status.json', 'utf8', (err, data) => {
       if (err) {
           res.status(500).json({ error: 'Error reading file' });
@@ -83,6 +83,74 @@ app.get('/', (req, res) => {
 });
 
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+// join into other node
+app.post('/node/connect_new',localhost_limiter, (req, res) => {
+  const data = req.body;
+  const { host, port } = data;
+  const url = `http://${host}:${port}`;
+  var my_url;
+  console.log('Connect new network:', url);
+  // Read the JSON file
+  fs.readFile('./data/server_status.json', 'utf8', (err, jsonData) => {
+    if (err) {
+      console.error('Error reading JSON file:', err);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+
+    try {
+      const serverStatus = JSON.parse(jsonData);
+      const { host_name, server_port } = serverStatus;
+      my_url = `http://${host_name}:${server_port}`;
+
+
+      // You can now use my_url as needed
+      res.send({ status: 'success', my_url });
+    } catch (parseErr) {
+      console.error('Error parsing JSON data:', parseErr);
+      res.status(500).send('Internal Server Error');
+    }
+    
+
+    //get the new blockchain and other
+    //...
+    //get the node network id
+    //...
+    //get the list of node
+    //...
+    //send the url to the node
+    console.log('Send my url:', my_url);
+    //...
+  });
+});
+
+app.post('/node/add_new', (req, res) => {
+  const { host, port } = req.body;
+  nodeManager.addNode(host, port, (err, url) => {
+    if (err) {
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+    res.send({ status: 'success', node: url });
+  });
+});
+
+app.get('/node/list', (req, res) => {
+  fs.readFile('./data/node_list.json', 'utf8', (err, data) => {
+      if (err) {
+          res.status(500).json({ error: 'Error reading file' });
+          return;
+      }
+      try {
+          const jsonData = JSON.parse(data);
+          res.json(jsonData);
+      } catch (parseErr) {
+          res.status(500).json({ error: 'Error parsing JSON' });
+      }
+  });
+});
+
+
+app.listen(server_port, () => {
+  console.log(`Server running on http://localhost:${server_port}`);
 });
