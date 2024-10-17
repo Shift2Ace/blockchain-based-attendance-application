@@ -34,7 +34,7 @@ const HomePage = () => {
           <p>Server Port: {data.server_port}</p>
         </div>
       ) : (
-        <p>Loading...</p>
+        <p>Status: connection error</p>
       )}
     </div>
   );
