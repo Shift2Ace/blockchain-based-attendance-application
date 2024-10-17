@@ -1,23 +1,45 @@
 import React, { useState } from 'react';
 import MenuBar from './components/menu';
+import config from './components/config.json';
 
 const Wallet = () => {
   const [password, setPassword] = useState('');
   const [walletId, setWalletId] = useState('');
+  const [error, setError] = useState('');
+
   const [address, setAddress] = useState('');
   const [studentId, setStudentId] = useState('');
 
-  const handleCreateWallet = (e) => {
+  // create wallet
+  const handleCreateWallet = async (e) => {
+    setError('');
     e.preventDefault();
-    // Logic to create a unique wallet ID from the password
-    const newWalletId = `wallet-${Date.now()}`; // Example logic for unique ID
-    setWalletId(newWalletId);
-    console.log('Created wallet ID:', newWalletId);
+    try {
+      const response = await fetch(`${config.API_URL}/wallet/create_new`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error);
+      }
+
+      const data = await response.json();
+      setWalletId(data.walletId);
+      console.log('Created wallet ID:', data.walletId);
+    } catch (error) {
+      setError(error.message);
+      console.error('Error:', error);
+    }
   };
 
+  // create address
   const handleCreateAddress = (e) => {
     e.preventDefault();
-    // Logic to create an address using wallet ID, password, and student ID
     if (walletId && password && studentId) {
       const newAddress = `address-${walletId}-${studentId}`;
       setAddress(newAddress);
@@ -26,6 +48,7 @@ const Wallet = () => {
       console.log('Please provide wallet ID, password, and student ID.');
     }
   };
+  
 
   return (
     <div>
@@ -33,7 +56,7 @@ const Wallet = () => {
       <h1>Wallet</h1>
       
       <form onSubmit={handleCreateWallet}>
-        <h2>Create Blockchain Wallet</h2>
+        <h2>Create Wallet</h2>
         <label>
           Password:
           <input 
@@ -45,6 +68,7 @@ const Wallet = () => {
         <br></br>
         <button type="submit">Create Wallet</button>
       </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       {walletId && <p>Wallet ID: {walletId}</p>}
 
       <form onSubmit={handleCreateAddress}>
