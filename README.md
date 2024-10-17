@@ -60,7 +60,7 @@ Back End
 
 # Create Wallet
 1. Create wallet from password, output unique wallet id
-2. Create address(unique) with wallet id and password
+2. Create address with wallet id, password and student id, output address,Keys
 
 # Add node
 1. New node get `node list` from any node
