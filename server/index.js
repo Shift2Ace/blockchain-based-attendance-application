@@ -5,7 +5,10 @@ const path = require('path');
 const server_port = 5000;
 const R = require('ramda');
 
+
+const sid_register = require('./lib/wallet/sid_register');
 const nodeManager = require('./lib/node/node_manager');
+const { register } = require('module');
 
 app.use(express.json());
 
@@ -85,7 +88,6 @@ app.get('/', (req, res) => {
   });
 });
 
-
 // join into other node
 app.post('/node/connect_new',localhost_limiter, (req, res) => {
   const data = req.body;
@@ -127,7 +129,7 @@ app.post('/node/connect_new',localhost_limiter, (req, res) => {
   });
 });
 
-// add new url to the list of node (done)
+// add new url to the list of node
 app.post('/node/add_new', (req, res) => {
   const { host, port } = req.body;
   nodeManager.addNode(host, port, (err, url) => {
@@ -139,9 +141,32 @@ app.post('/node/add_new', (req, res) => {
   });
 });
 
+// register SID
+app.post('/wallet/sid_register', (req, res) => {
+  const { publicKey, address, signature, sid } = req.body;
 
+  if (!sid_register.verifySignature(publicKey, sid, signature)) {
+    console.log('Invalid signature');
+    return res.status(400).send('Invalid signature');
+  }
 
-// register
+  // Prepare data to save
+  const dataToSave = {
+    type: 'register',
+    ...req.body,
+    timestamp: Math.floor(Date.now() / 1000),
+  };
+
+  // Save data to application.json
+  const filePath = './data/application.json';
+  sid_register.saveData(dataToSave, filePath, (err) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+
+    res.status(200).send('SID registered successfully');
+  });
+});
 
 app.listen(server_port, () => {
   console.log(`Server running on http://localhost:${server_port}`);

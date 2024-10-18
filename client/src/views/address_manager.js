@@ -74,7 +74,12 @@ const ManageAddresses = () => {
           ))}
         </select>
         {selectedAddress && (
-          <button onClick={handleDeleteAddress}>Delete Address</button>
+          <>
+            <button onClick={handleDeleteAddress}>Delete Address</button>
+            <a href={`/wallet/register?address=${selectedAddress}`}>
+              <button>Go to SID Register</button>
+            </a>
+          </>
         )}
       </div>
       {data && selectedAddress && (

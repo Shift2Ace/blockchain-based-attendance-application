@@ -2,5 +2,5 @@
     "status":"running",
     "node_network_id":null,
     "host_name":"192.168.1.75",
-    "server_port":3000
+    "server_port":5000
 }
