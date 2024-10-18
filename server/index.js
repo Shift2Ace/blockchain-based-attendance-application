@@ -6,7 +6,6 @@ const server_port = 5000;
 const R = require('ramda');
 
 const nodeManager = require('./lib/node/node_manager');
-const wallet = require('./lib/wallet/wallet')
 
 app.use(express.json());
 
@@ -140,22 +139,9 @@ app.post('/node/add_new', (req, res) => {
   });
 });
 
-// create new wallet
-app.post('/wallet/create_new', (req, res) => {
-  let password = req.body.password;
-  if (R.match(/\w+/g, password).length <= 4) {
-    return res.status(400).send({ error: 'Password must contain more than 4 words' });
-  }
-  try {
-    let new_wallet = wallet.createWalletFromPassword(password);
-    new_wallet_id = new_wallet.id
-    console.log(new_wallet_id);
-    res.status(201).send({ walletId: new_wallet_id });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send({ error: 'Failed to create wallet' });
-  }
-});
+
+
+// register
 
 app.listen(server_port, () => {
   console.log(`Server running on http://localhost:${server_port}`);

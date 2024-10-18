@@ -2,14 +2,18 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './views/home';
 import NodePage from './views/node';
-import WalletPage from './views/wallet';
+import AddressCreate from './views/address_create';
+import AddressManager from './views/address_manager';
+import AddressAdd from './views/address_add';
 import ExamplePage from './views/example';
 
 const AppRouter = () => (
   <Router>
     <Routes>
       <Route path="/node" element={<NodePage />} />
-      <Route path="/wallet" element={<WalletPage />} />
+      <Route path="/wallet/create_address" element={<AddressCreate />} />
+      <Route path="/wallet/add_address" element={<AddressAdd />} />
+      <Route path="/wallet" element={<AddressManager />} />
       <Route path="/example" element={<ExamplePage />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="*" element={<HomePage />} />
