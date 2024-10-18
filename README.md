@@ -30,6 +30,7 @@ Back End
   - Merkle Root
   - Nonce
   - Miner
+  - Type
 - Records
   - Inputs[]
     - Transaction
@@ -40,10 +41,13 @@ Back End
   - Outputs[]
     - Address
     - Amount
+  - Register
+    - Address
+    - Student id
+    - Signature
   - Attendance
     - Timestamp
     - Address
-    - Student id
     - Event id
     - Event holder
     - Event signature
