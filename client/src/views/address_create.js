@@ -3,10 +3,11 @@ import MenuBar from './components/menu';
 import zxcvbn from 'zxcvbn';
 import CryptoJS from 'crypto-js';
 import { ec as EC } from 'elliptic';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Wallet = () => { 
   const [data, setData] = useState(null);
-  const [error, setError] = useState('');
   const [password, setPassword] = useState('');
   const [passwordStrength, setPasswordStrength] = useState(null);
   const [name, setName] = useState('');
@@ -17,13 +18,18 @@ const Wallet = () => {
     const keyPair = ec.genKeyPair();
     const privateKey = keyPair.getPrivate('hex');
     const publicKey = keyPair.getPublic('hex');
-    const address = CryptoJS.SHA256(publicKey).toString();
+
+    // Hash the public key with SHA-256
+    const sha256Hash = CryptoJS.SHA256(publicKey).toString();
+    // Hash the result with RIPEMD-160
+    const ripemd160Hash = CryptoJS.RIPEMD160(sha256Hash).toString();
+
+    const address = ripemd160Hash;
     return { privateKey, publicKey, address };
   };
 
   // Function to handle address creation
   const handleCreateAddress = (e) => {
-    setError('');
     e.preventDefault();
     try {
       const newData = generateKeysAndAddress();
@@ -36,8 +42,9 @@ const Wallet = () => {
       setData({ ...newData, hashedPassword });
       const addressCount = Object.keys(localStorage).filter(key => key.startsWith(`address_${name}_`)).length + 1;
       localStorage.setItem(`address_${name}_${addressCount}`, JSON.stringify(encryptedData));
+      toast.success('Address created successfully!');
     } catch (err) {
-      setError('Failed to create address');
+      toast.error('Failed to create address');
     }
   };
 
@@ -102,7 +109,7 @@ const Wallet = () => {
           <p><strong>Data saved in:</strong> {`address_${name}_${Object.keys(localStorage).filter(key => key.startsWith(`address_${name}_`)).length}`}</p>
         </div>
       )}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ToastContainer />
     </div>
   );
 };
