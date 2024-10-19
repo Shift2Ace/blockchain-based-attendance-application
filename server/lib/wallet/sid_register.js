@@ -10,13 +10,25 @@ const verifySignature = (publicKey, sid, signature) => {
   return key.verify(msgHash, signature);
 };
 
-const saveData = (dataToSave, filePath, callback) => {
+const verifyAddress = (publicKey, address) => {
+  const sha256Hash = CryptoJS.SHA256(publicKey).toString();
+  const ripemd160Hash = CryptoJS.RIPEMD160(sha256Hash).toString();
+  return ripemd160Hash === address;
+};
+
+const checkAndSaveData = (dataToSave, filePath, callback) => {
   fs.readFile(filePath, (err, data) => {
     if (err && err.code !== 'ENOENT') {
       return callback('Error reading file');
     }
 
     const jsonData = data ? JSON.parse(data) : [];
+    const isDuplicate = jsonData.some(record => record.sid === dataToSave.sid && record.address === dataToSave.address);
+
+    if (isDuplicate) {
+      return callback(null, true);
+    }
+
     jsonData.push(dataToSave);
 
     fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), (err) => {
@@ -24,12 +36,13 @@ const saveData = (dataToSave, filePath, callback) => {
         return callback('Error writing file');
       }
 
-      callback(null);
+      callback(null, false);
     });
   });
 };
 
 module.exports = {
   verifySignature,
-  saveData,
+  verifyAddress,
+  checkAndSaveData,
 };

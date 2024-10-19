@@ -145,6 +145,11 @@ app.post('/node/add_new', (req, res) => {
 app.post('/wallet/sid_register', (req, res) => {
   const { publicKey, address, signature, sid } = req.body;
 
+  if (!sid_register.verifyAddress(publicKey, address)) {
+    console.log('Address does not match public key');
+    return res.status(400).send('Address does not match public key');
+  } 
+  
   if (!sid_register.verifySignature(publicKey, sid, signature)) {
     console.log('Invalid signature');
     return res.status(400).send('Invalid signature');
@@ -153,15 +158,19 @@ app.post('/wallet/sid_register', (req, res) => {
   // Prepare data to save
   const dataToSave = {
     type: 'register',
+    timestamp: Math.floor(Date.now()),
     ...req.body,
-    timestamp: Math.floor(Date.now() / 1000),
   };
 
   // Save data to application.json
   const filePath = './data/application.json';
-  sid_register.saveData(dataToSave, filePath, (err) => {
+  sid_register.checkAndSaveData(dataToSave, filePath, (err, isDuplicate) => {
     if (err) {
       return res.status(500).send(err);
+    }
+
+    if (isDuplicate) {
+      return res.status(400).send('Duplicate record with same SID and address');
     }
 
     res.status(200).send('SID registered successfully');
