@@ -73,7 +73,7 @@ Back End
 5. Sufficient Fees
 6. Nonce and Sequence
 
-#Blockchain Update Checks
+# Blockchain Update Checks
 1. Block Structure
 2. Previous Block Hash
 3. Proof of Work
