@@ -31,40 +31,59 @@ Back End
   - Nonce
   - Miner
   - Type
-- Records
-  - Inputs[]
-    - Transaction
-    - Index
+- Records (choose one)
+  - Transaction
+    - Inputs[]
+      - Transaction
+      - Index
+      - Address
+      - Public key
+      - Amount
+      - Signature
+    - Outputs[]
+      - Address
+      - Amount
+        
+  - SID Register
     - Address
-    - Amount
-    - Signature
-  - Outputs[]
-    - Address
-    - Amount
-  - Register
-    - Address
+    - Public key
     - Student id
     - Signature
+      
   - Attendance
     - Timestamp
     - Address
+    - Public key
     - Event id
     - Event holder
     - Event signature
     - Student signature
 
 # Wallet
-- ID
+- Address
+- Encrypted Secret Key
+- Public Key
 - Password Hash
-- Secert
-- KeyPairs[2]
-  - Index
-  - Secret Key
-  - Public Key
 
-# Create Wallet
-1. Create wallet from password, output unique wallet id
-2. Create address with wallet id, password and student id, output address,Keys
+# Mempool Update Checks
+1. Format
+2. Public Key Verification
+3. Signature Verification
+4. Double-Spending Check
+5. Sufficient Fees
+6. Nonce and Sequence
+
+#Blockchain Update Checks
+1. Block Structure
+2. Previous Block Hash
+3. Proof of Work
+4. Timestamp
+5. Merkle Root
+6. Transaction Validity
+7. Signature Verification
+8. Double-Spending Check
+9. Script Validation
+10. Block Reward and Fees
 
 # Add node
 1. New node get `node list` from any node
