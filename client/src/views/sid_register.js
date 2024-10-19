@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import MenuBar from './components/menu';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
 import { ec as EC } from 'elliptic';
 import config from './components/config.json';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const SidRegister = () => {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [password, setPassword] = useState('');
   const [sid, setSid] = useState('');
-  const [error, setError] = useState('');
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Load addresses from localStorage and sort them
@@ -48,10 +50,9 @@ const SidRegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (!isValidSid(sid)) {
-      setError('Invalid SID. It must be 8 digits.');
+      toast.error('Invalid SID. It must be 8 digits.');
       return;
     }
 
@@ -60,7 +61,7 @@ const SidRegister = () => {
       const hashedPassword = CryptoJS.SHA256(password).toString();
 
       if (hashedPassword !== storedData.hashedPassword) {
-        setError('Incorrect password');
+        toast.error('Incorrect password');
         return;
       }
 
@@ -95,12 +96,15 @@ const SidRegister = () => {
           throw new Error('Failed to register SID');
         }
 
-        console.log('SID registered successfully');
+        toast.success('SID registered successfully! Redirecting after 6 seconds');
+        setTimeout(() => {
+          navigate('/wallet');
+        }, 6000); // Redirect after 2 seconds
       } else {
-        setError('Incorrect password');
+        toast.error('Incorrect password');
       }
     } catch (err) {
-      setError('Failed to decrypt private key or register SID');
+      toast.error('Failed to decrypt private key or register SID');
     }
   };
 
@@ -137,7 +141,7 @@ const SidRegister = () => {
         </div>
         <button type="submit">Register SID</button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ToastContainer />
     </div>
   );
 };
