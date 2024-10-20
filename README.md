@@ -27,30 +27,30 @@ Back End
 - Block Header
   - Index
   - Previous Block Hash
-  - Merkle Root
+  - Merkle Root of Data
   - Nonce
   - Miner
-  - Type
-- Records (choose one)
+  - Type (empty/transaction/sid register/attendance)
+  - Hash
+- Data (choose one)
   - Transaction
-    - Inputs[]
-      - Transaction
-      - Index
-      - Address
-      - Public key
-      - Amount
-      - Signature
-    - Outputs[]
-      - Address
-      - Amount
-        
+    - Index
+    - Timestamp
+    - Address
+    - Public key
+    - Amount
+    - Signature
+  
   - SID Register
+    - Index
+    - Timestamp
     - Address
     - Public key
     - Student id
     - Signature
       
   - Attendance
+    - Index
     - Timestamp
     - Address
     - Public key
@@ -58,7 +58,11 @@ Back End
     - Event holder
     - Event signature
     - Student signature
-
+      
+- Outputs[]
+    - Address
+    - Amount
+      
 # Wallet
 - Address
 - Encrypted Secret Key
