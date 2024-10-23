@@ -34,15 +34,16 @@ Back End
   - Hash
 - Data (choose one)
   - Transaction
-    - Index
+    - Index (random number)
     - Timestamp
-    - Address
+    - From address
     - Public key
+    - To address
     - Amount
     - Signature
   
   - SID Register
-    - Index
+    - Index (random number)
     - Timestamp
     - Address
     - Public key
@@ -50,7 +51,7 @@ Back End
     - Signature
       
   - Attendance
-    - Index
+    - Index (random number)
     - Timestamp
     - Address
     - Public key
