@@ -6,8 +6,9 @@ const server_port = 5000;
 const R = require('ramda');
 
 
-const sid_register = require('./lib/wallet/sid_register');
+const fileManger = require('./lib/file_manager');
 const nodeManager = require('./lib/node/node_manager');
+const validator = require('./lib/validator')
 const { register } = require('module');
 
 app.use(express.json());
@@ -143,28 +144,32 @@ app.post('/node/add_new', (req, res) => {
 
 // register SID
 app.post('/wallet/sid_register', (req, res) => {
-  const { publicKey, address, signature, sid } = req.body;
+  const { index, timestamp, address, sid, signature, publicKey } = req.body;
+  data = {
+    index:index,
+    timestamp:timestamp,
+    address:address,
+    sid:sid
+  }
 
-  if (!sid_register.verifyAddress(publicKey, address)) {
+  if (!validator.verifyAddress(publicKey, address)) {
     console.log('Address does not match public key');
     return res.status(400).send('Address does not match public key');
   } 
   
-  if (!sid_register.verifySignature(publicKey, sid, signature)) {
+  if (!validator.verifySignature(publicKey, data, signature)) {
     console.log('Invalid signature');
     return res.status(400).send('Invalid signature');
   }
 
-  // Prepare data to save
-  const dataToSave = {
-    type: 'register',
-    timestamp: Math.floor(Date.now()),
-    ...req.body,
-  };
+  dataToSave = {
+    type:"sid_register",
+    ... req.body
+  }
 
   // Save data to application.json
   const filePath = './data/application.json';
-  sid_register.checkAndSaveData(dataToSave, filePath, (err, isDuplicate) => {
+  fileManger.checkAndSaveData(dataToSave, filePath, (err, isDuplicate) => {
     if (err) {
       return res.status(500).send(err);
     }

@@ -12,6 +12,8 @@ const SidRegister = () => {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [password, setPassword] = useState('');
   const [sid, setSid] = useState('');
+  const [index, setIndex] = useState(() => Math.floor(Math.random() * 0xFFFFFFFF)); // Random 32-bit number
+  const [timestamp, setTimestamp] = useState(() => Date.now()); // Current time
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -69,18 +71,32 @@ const SidRegister = () => {
       const decryptedKey = decryptedBytes.toString(CryptoJS.enc.Utf8);
 
       if (decryptedKey) {
+        // Update index and timestamp
+        setIndex(Math.floor(Math.random() * 0xFFFFFFFF));
+        setTimestamp(Date.now());
+
         // Generate the signature using the private key
         const ec = new EC('secp256k1');
         const keyPair = ec.keyFromPrivate(decryptedKey, 'hex');
-        const msgHash = CryptoJS.SHA256(sid).toString();
+        
+        // Create the message to be signed
+        const message = {
+          index,
+          timestamp,
+          address: storedData.address,
+          sid
+        };
+        const msgHash = CryptoJS.SHA256(JSON.stringify(message)).toString();
         const signature = keyPair.sign(msgHash).toDER('hex');
 
         // Prepare the data to be sent
         const payload = {
-          publicKey: storedData.publicKey,
+          index,
+          timestamp,
           address: storedData.address,
-          signature,
           sid,
+          signature,
+          publicKey: storedData.publicKey
         };
 
         // Send the data to the server
@@ -93,13 +109,15 @@ const SidRegister = () => {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to register SID');
+          const errorMessage = await response.text();
+          toast.error(errorMessage);
+          return;
         }
 
-        toast.success('SID registered successfully! Redirecting after 6 seconds');
+        toast.success('SID registered successfully! Redirecting ...');
         setTimeout(() => {
           navigate('/wallet');
-        }, 6000); // Redirect after 2 seconds
+        }, 2000); // Redirect after 6 seconds
       } else {
         toast.error('Incorrect password');
       }
