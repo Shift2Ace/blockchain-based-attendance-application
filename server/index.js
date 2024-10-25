@@ -182,6 +182,46 @@ app.post('/wallet/sid_register', (req, res) => {
   });
 });
 
+// attendance
+app.post('/attendance/add_new', (req, res) => {
+  const { index, timestamp, address, classId, signature, publicKey } = req.body;
+  data = {
+    index:index,
+    timestamp:timestamp,
+    address:address,
+    classId:classId
+  }
+
+  if (!validator.verifyAddress(publicKey, address)) {
+    console.log('Address does not match public key');
+    return res.status(400).send('Address does not match public key');
+  } 
+  
+  if (!validator.verifySignature(publicKey, data, signature)) {
+    console.log('Invalid signature');
+    return res.status(400).send('Invalid signature');
+  }
+
+  dataToSave = {
+    type:"attendance",
+    ... req.body
+  }
+
+  // Save data to application.json
+  const filePath = './data/application.json';
+  fileManger.checkAndSaveData(dataToSave, filePath, (err, isDuplicate) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+
+    if (isDuplicate) {
+      return res.status(400).send('Duplicate record with same SID and address');
+    }
+
+    res.status(200).send('SID registered successfully');
+  });
+});
+
 app.listen(server_port, () => {
   console.log(`Server running on http://localhost:${server_port}`);
 });
