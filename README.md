@@ -37,28 +37,26 @@ Back End
     - Index (random number)
     - Timestamp
     - From address
-    - Public key
     - To address
     - Amount
-    - Signature
+    - Signature (Index,Timestamp,addresses,amount)
+    - Public key
   
   - SID Register
     - Index (random number)
     - Timestamp
     - Address
-    - Public key
     - Student id
-    - Signature
+    - Signature (Index,Timestamp,address,sid)
+    - Public key
       
   - Attendance
     - Index (random number)
     - Timestamp
     - Address
-    - Public key
     - Event id
-    - Event holder
-    - Event signature
-    - Student signature
+    - Student signature (Index,Timestamp,address,event id)
+    - Public key
       
 - Outputs[]
     - Address
