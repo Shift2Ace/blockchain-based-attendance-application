@@ -30,7 +30,7 @@ fs.readFile('data/blockchain.json', 'utf8', (err, data) => {
   }
   const blockchain = JSON.parse(data || '[]');
   if (blockchain.length === 0) {
-    const firstBlock = blockchainManager.createFirstBlock;
+    const firstBlock = blockchainManager.createFirstBlock();
     blockchain.push(firstBlock);
     fs.writeFile('data/blockchain.json', JSON.stringify(blockchain, null, 2), (err) => {
       if (err) {
