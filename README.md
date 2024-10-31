@@ -30,10 +30,11 @@ Back End
   - Merkle Root of Data
   - Nonce
   - Miner
-  - Type (empty/transaction/sid register/attendance)
+  - Num of Data
   - Hash
-- Data (choose one)
+- Data[8]
   - Transaction
+    - Type (transaction)
     - Index (random number)
     - Timestamp
     - From address
@@ -43,6 +44,7 @@ Back End
     - Public key
   
   - SID Register
+    - Type (sid register)
     - Index (random number)
     - Timestamp
     - Address
@@ -51,6 +53,7 @@ Back End
     - Public key
       
   - Attendance
+    - Type (attendance)
     - Index (random number)
     - Timestamp
     - Address
