@@ -5,6 +5,9 @@ import CryptoJS from 'crypto-js';
 import { ec as EC } from 'elliptic';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import bs58 from 'bs58';
+const { Buffer } = require('buffer');
+
 
 const Wallet = () => { 
   const [data, setData] = useState(null);
@@ -19,12 +22,10 @@ const Wallet = () => {
     const privateKey = keyPair.getPrivate('hex');
     const publicKey = keyPair.getPublic('hex');
 
-    // Hash the public key with SHA-256
     const sha256Hash = CryptoJS.SHA256(publicKey).toString();
-    // Hash the result with RIPEMD-160
     const ripemd160Hash = CryptoJS.RIPEMD160(sha256Hash).toString();
-
-    const address = ripemd160Hash;
+    const ripemd160Hash_bytes = Buffer.from(ripemd160Hash, 'hex');
+    const address = bs58.encode(ripemd160Hash_bytes);
     return { privateKey, publicKey, address };
   };
 
