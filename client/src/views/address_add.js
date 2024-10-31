@@ -31,7 +31,13 @@ const SaveKeys = () => {
       const ec = new EC('secp256k1');
       const keyPair = ec.keyFromPrivate(privateKey, 'hex');
       const publicKey = keyPair.getPublic('hex');
-      const address = CryptoJS.SHA256(publicKey).toString();
+
+      // Hash the public key with SHA-256
+      const sha256Hash = CryptoJS.SHA256(publicKey).toString();
+      // Hash the result with RIPEMD-160
+      const ripemd160Hash = CryptoJS.RIPEMD160(sha256Hash).toString();
+
+      const address = ripemd160Hash;
 
       // Hash the password
       const hashedPassword = CryptoJS.SHA256(password).toString();
