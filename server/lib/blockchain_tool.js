@@ -9,18 +9,14 @@ function calculateHash(header) {
 function calculateMerkleRoot(data) {
     if (data.length === 0) return '';
 
-    // Helper function to hash a single transaction
     function hashTransaction(transaction) {
         return CryptoJS.SHA256(JSON.stringify(transaction)).toString();
     }
 
-    // Hash all transactions
     let hashes = data.map(hashTransaction);
 
-    // Iteratively combine and hash pairs of hashes
     while (hashes.length > 1) {
         if (hashes.length % 2 !== 0) {
-            // If odd number of hashes, duplicate the last one
             hashes.push(hashes[hashes.length - 1]);
         }
 
@@ -35,11 +31,9 @@ function calculateMerkleRoot(data) {
     return hashes[0];
 }
 
+// check the difficulty / number of 0 of hash
 function difficulty(hash) {
-    // Convert the hexadecimal hash to a binary string
-    let binaryString = parseInt(hash, 16).toString(2);
-    
-    // Count the number of leading zeros
+    let binaryString = parseInt(hash, 16).toString(2).padStart(256, '0')
     let leadingZeros = 0;
     for (let char of binaryString) {
         if (char === '0') {

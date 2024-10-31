@@ -9,7 +9,7 @@ const R = require('ramda');
 const fileManger = require('./lib/file_manager');
 const nodeManager = require('./lib/node/node_manager');
 const validator = require('./lib/validator')
-const blockchain_tool = require('./lib/blockchain');
+const blockchain = require('./lib/blockchain');
 const { register } = require('module');
 
 app.use(express.json());
@@ -30,7 +30,7 @@ fs.readFile('data/blockchain.json', 'utf8', (err, data) => {
   }
   const blockchain = JSON.parse(data || '[]');
   if (blockchain.length === 0) {
-    const firstBlock = blockchain_tool.createFirstBlock();
+    const firstBlock = blockchain.createFirstBlock();
     blockchain.push(firstBlock);
     fs.writeFile('data/blockchain.json', JSON.stringify(blockchain, null, 2), (err) => {
       if (err) {
@@ -199,6 +199,23 @@ app.post('/wallet/sid_register', (req, res) => {
 
     res.status(200).send('SID registered successfully');
   });
+});
+
+app.post('/blockchain/mine', (req, res) => {
+  let block = null;
+
+  while (!block) {
+    let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+    var index = blockchainData.length;
+    var pre_hash = blockchainData[blockchainData.length - 1].header.hash;
+    // mine the block
+    block = blockchain.createNewBlock(index, pre_hash, [], "test", 15);
+  }
+
+  let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  blockchainData.push(block);
+  fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
+  res.status(200).json({ message: 'Block mined successfully', block: block });
 });
 
 // attendance

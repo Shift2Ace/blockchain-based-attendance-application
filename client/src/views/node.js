@@ -7,6 +7,7 @@ const NodePage = () => {
   const [host, setHost] = useState('');
   const [port, setPort] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [mining, setMining] = useState(false);
 
   const isLocalhost = window.location.hostname === 'localhost';
 
@@ -25,6 +26,20 @@ const NodePage = () => {
     } else {
       alert('Failed to connect');
     }
+  };
+
+  const handleMineBlock = async () => {
+    setMining(true);
+    const response = await fetch(`${config.API_URL}/blockchain/mine`, {
+      method: 'POST',
+    });
+
+    if (response.ok) {
+      alert('Block mined successfully');
+    } else {
+      alert('Failed to mine block');
+    }
+    setMining(false);
   };
 
   if (!isLocalhost) {
@@ -62,6 +77,9 @@ const NodePage = () => {
         </div>
         <button type="submit">Connect</button>
       </form>
+      <button onClick={handleMineBlock} disabled={mining}>
+        {mining ? 'Mining...' : 'Mine New Block'}
+      </button>
     </div>
   );
 };
