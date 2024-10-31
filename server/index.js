@@ -9,7 +9,7 @@ const R = require('ramda');
 const fileManger = require('./lib/file_manager');
 const nodeManager = require('./lib/node/node_manager');
 const validator = require('./lib/validator')
-const blockchain = require('./lib/blockchain');
+const blockchainManager = require('./lib/blockchain');
 const { register } = require('module');
 
 app.use(express.json());
@@ -30,7 +30,7 @@ fs.readFile('data/blockchain.json', 'utf8', (err, data) => {
   }
   const blockchain = JSON.parse(data || '[]');
   if (blockchain.length === 0) {
-    const firstBlock = blockchain.createFirstBlock();
+    const firstBlock = blockchainManager.createFirstBlock;
     blockchain.push(firstBlock);
     fs.writeFile('data/blockchain.json', JSON.stringify(blockchain, null, 2), (err) => {
       if (err) {
@@ -209,7 +209,7 @@ app.post('/blockchain/mine', (req, res) => {
     var index = blockchainData.length;
     var pre_hash = blockchainData[blockchainData.length - 1].header.hash;
     // mine the block
-    block = blockchain.createNewBlock(index, pre_hash, [], "test", 15);
+    block = blockchainManager.createNewBlock(index, pre_hash, [], "test", 15);
   }
 
   let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
