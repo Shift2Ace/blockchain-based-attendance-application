@@ -9,6 +9,7 @@ const R = require('ramda');
 const fileManger = require('./lib/file_manager');
 const nodeManager = require('./lib/node/node_manager');
 const validator = require('./lib/validator')
+const blockchain_tool = require('./lib/blockchain');
 const { register } = require('module');
 
 app.use(express.json());
@@ -21,7 +22,25 @@ app.use((req, res, next) => {
   next()
 });
 
-
+// Check and create the first block if blockchain.json is empty
+fs.readFile('data/blockchain.json', 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading blockchain file:', err);
+    return;
+  }
+  const blockchain = JSON.parse(data || '[]');
+  if (blockchain.length === 0) {
+    const firstBlock = blockchain_tool.createFirstBlock();
+    blockchain.push(firstBlock);
+    fs.writeFile('data/blockchain.json', JSON.stringify(blockchain, null, 2), (err) => {
+      if (err) {
+        console.error('Error writing blockchain file:', err);
+      } else {
+        console.log('First block created and saved.');
+      }
+    });
+  }
+});
 
 const allowed_url = ['http://localhost:3000/', 'http://192.168.1.75:3000/'];
 
