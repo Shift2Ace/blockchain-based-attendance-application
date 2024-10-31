@@ -8,6 +8,7 @@ function createFirstBlock(){
         nonce: 0,
         miner: "",
         data_len: 0,
+        TargetDifficulty: 10,
         timestamp: 0
     }
     const new_header = {
@@ -32,6 +33,7 @@ function createNewBlock(index, pre_hash, data, miner, difficulty) {
         nonce: nonce,
         miner: miner,
         data_len: data.length,
+        TargetDifficulty: difficulty,
         timestamp: Date.now()
     };
 

@@ -31,6 +31,7 @@ Back End
   - Nonce
   - Miner
   - Num of Data
+  - TargetDifficulty
   - Hash
 - Data[8]
   - Transaction
