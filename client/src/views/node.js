@@ -10,6 +10,7 @@ const NodePage = () => {
   const [port, setPort] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [mining, setMining] = useState(false);
+  const [data, setData] = useState(null);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState('');
   const miningRef = useRef(false);
@@ -23,6 +24,13 @@ const NodePage = () => {
       .sort();
     setAddresses(storedAddresses);
   }, []);
+
+  const handleAddressSelect = (e) => {
+    const selected = e.target.value;
+    setSelectedAddress(selected);
+    const storedData = JSON.parse(localStorage.getItem(selected));
+    setData(storedData);
+  };
 
   useEffect(() => {
     return () => {
@@ -65,7 +73,7 @@ const NodePage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ address: selectedAddress }),
+        body: JSON.stringify({ address: data.address }),
       });
 
       const result = await response.json();
@@ -130,10 +138,10 @@ const NodePage = () => {
         <select
           id="address"
           value={selectedAddress}
-          onChange={(e) => setSelectedAddress(e.target.value)}
+          onChange={handleAddressSelect}
           required
         >
-          <option value="">Select an address</option>
+          <option value="">Select Address</option>
           {addresses.map(address => (
             <option key={address} value={address}>{address}</option>
           ))}

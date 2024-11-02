@@ -28,7 +28,7 @@ const ManageAddresses = () => {
     setData(storedData);
     setDecryptedPrivateKey('');
     setError(''); // Clear error message when a new address is selected
-    fetchBalance(selected); // Fetch balance when an address is selected
+    fetchBalance(storedData.address); // Fetch balance when an address is selected
   };
 
   const handlePasswordChange = (e) => {
