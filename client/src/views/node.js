@@ -24,6 +24,14 @@ const NodePage = () => {
     setAddresses(storedAddresses);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      // Cleanup function to stop mining when the component unmounts
+      setMining(false);
+      miningRef.current = false;
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await fetch(`${config.API_URL}/node/connect_new`, {
