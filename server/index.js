@@ -203,19 +203,25 @@ app.post('/wallet/sid_register', (req, res) => {
 
 app.post('/blockchain/mine', (req, res) => {
   let block = null;
+  const startTime = Date.now();
 
-  while (!block) {
+  while (!block && (Date.now() - startTime < 5000)) {
     let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
     var index = blockchainData.length;
     // mine the block
-    block = blockchainManager.createNewBlock(index, blockchainData, [], "test", blockchainManager.adjustDifficulty(blockchainData,index));
+    block = blockchainManager.createNewBlock(index, blockchainData, [], "test", blockchainManager.adjustDifficulty(blockchainData, index));
   }
 
-  let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
-  blockchainData.push(block);
-  fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
-  res.status(200).json({ message: 'Block mined successfully', block: block });
+  if (block) {
+    let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+    blockchainData.push(block);
+    fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
+    res.status(200).json({ message: 'Block mined successfully'});
+  } else {
+    res.status(200).json({ message: 'No block mined' });
+  }
 });
+
 
 // attendance
 app.post('/attendance/add_new', (req, res) => {

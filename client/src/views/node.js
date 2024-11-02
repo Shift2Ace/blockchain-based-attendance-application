@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import MenuBar from './components/menu';
 import config from './components/config.json';
@@ -10,6 +10,7 @@ const NodePage = () => {
   const [port, setPort] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [mining, setMining] = useState(false);
+  const miningRef = useRef(false);
 
   const isLocalhost = window.location.hostname === 'localhost';
 
@@ -32,16 +33,34 @@ const NodePage = () => {
 
   const handleMineBlock = async () => {
     setMining(true);
-    const response = await fetch(`${config.API_URL}/blockchain/mine`, {
-      method: 'POST',
-    });
+    miningRef.current = true;
+    let response;
+    do {
+      response = await fetch(`${config.API_URL}/blockchain/mine`, {
+        method: 'POST',
+      });
 
-    if (response.ok) {
-      toast.success('Block mined successfully');
-    } else {
-      toast.error('Failed to mine block');
-    }
+      const result = await response.json();
+      if (result.message === 'Block mined successfully') {
+        toast.success(result.message);
+      } else if (result.message === 'No block mined') {
+        toast.info('Retrying to mine block...');
+      } else {
+        toast.error('Failed to mine block');
+        break;
+      }
+    } while (response.ok && miningRef.current);
     setMining(false);
+    miningRef.current = false;
+  };
+
+  const toggleMining = () => {
+    if (!mining) {
+      handleMineBlock();
+    } else {
+      setMining(false);
+      miningRef.current = false;
+    }
   };
 
   if (!isLocalhost) {
@@ -79,8 +98,8 @@ const NodePage = () => {
         </div>
         <button type="submit">Connect</button>
       </form>
-      <button onClick={handleMineBlock} disabled={mining}>
-        {mining ? 'Mining...' : 'Mine New Block'}
+      <button onClick={toggleMining}>
+        {mining ? 'Stop Mining' : 'Start Mining'}
       </button>
       <ToastContainer />
     </div>
