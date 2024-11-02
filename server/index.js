@@ -201,18 +201,26 @@ app.post('/wallet/sid_register', (req, res) => {
   });
 });
 
+// mine the block
 app.post('/blockchain/mine',localhost_limiter, (req, res) => {
   const address = req.body.address;
   let block = null;
   const startTime = Date.now();
-
+  let recordsToUse = [];
   while (!block && (Date.now() - startTime < 5000)) {
     let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+    let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
+    recordsToUse = applicationData.slice(0, 8); // Use up to 8 records
     var index = blockchainData.length;
-    block = blockchainManager.createNewBlock(index, blockchainData, [], address, blockchainManager.adjustDifficulty(blockchainData, index));
+    block = blockchainManager.createNewBlock(index, blockchainData, recordsToUse, address, blockchainManager.adjustDifficulty(blockchainData, index));
   }
 
   if (block) {
+    let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
+    applicationData = applicationData.filter(record => 
+      !recordsToUse.some(r => r.index === record.index && r.signature === record.signature)
+    );
+    fs.writeFileSync('data/application.json', JSON.stringify(applicationData, null, 2));
     let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
     blockchainData.push(block);
     fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
