@@ -208,7 +208,7 @@ app.post('/blockchain/mine', (req, res) => {
     let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
     var index = blockchainData.length;
     // mine the block
-    block = blockchainManager.createNewBlock(index, blockchainData, [], "test", 15);
+    block = blockchainManager.createNewBlock(index, blockchainData, [], "test", blockchainManager.adjustDifficulty(blockchainData,index));
   }
 
   let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));

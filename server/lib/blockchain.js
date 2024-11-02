@@ -1,5 +1,10 @@
 const blockchain_tool = require('./blockchain_tool')
 
+const MIN_DIFFICULTY = 10; 
+const INITIAL_DIFFICULTY = 10; 
+const TARGET_BLOCK_TIME = 10000; 
+const DIFFICULTY_ADJUSTMENT_INTERVAL = 5;
+
 function createFirstBlock(){
     const header = {
         index: 0,
@@ -62,10 +67,28 @@ function blockChecker (block){
 
 }
 
+function adjustDifficulty(blockchain, index) {
+    if (index <= DIFFICULTY_ADJUSTMENT_INTERVAL) {
+        return INITIAL_DIFFICULTY;
+    }
+
+    const first_adjustment_block = (Math.floor((index-1)/DIFFICULTY_ADJUSTMENT_INTERVAL)*DIFFICULTY_ADJUSTMENT_INTERVAL)-DIFFICULTY_ADJUSTMENT_INTERVAL;
+    const last_adjustment_block = first_adjustment_block + DIFFICULTY_ADJUSTMENT_INTERVAL;
+    const timeTaken = blockchain[last_adjustment_block].header.timestamp - blockchain[first_adjustment_block].header.timestamp;
+    const averageTimePerBlock = timeTaken / DIFFICULTY_ADJUSTMENT_INTERVAL;
+
+    const previousDifficulty = blockchain[last_adjustment_block].header.TargetDifficulty;
+    if (averageTimePerBlock < TARGET_BLOCK_TIME) { 
+        return previousDifficulty + 1;
+    } else {
+        return Math.max(previousDifficulty - 1, MIN_DIFFICULTY);
+    }
+}
 
 
 
 module.exports = {
     createFirstBlock,
-    createNewBlock
+    createNewBlock,
+    adjustDifficulty
 }
