@@ -17,18 +17,19 @@ function createFirstBlock(){
     }
     const block = {
         header : new_header,
-        data : []
+        data : [],
+        output: []
     }
 
     return block;
 }
 
-function createNewBlock(index, pre_hash, data, miner, difficulty) {
+function createNewBlock(index, blockchain, data, miner, difficulty) {
     const nonce = Math.floor(Math.random() * Math.pow(2, 32));
-    
+    const output = blockchain_tool.getBlockOutput(miner,data,blockchain);
     const header = {
         index: index,
-        pre_hash: pre_hash,
+        pre_hash: blockchain[blockchain.length-1].header.hash,
         merkle_root: blockchain_tool.calculateMerkleRoot(data),
         nonce: nonce,
         miner: miner,
@@ -36,7 +37,6 @@ function createNewBlock(index, pre_hash, data, miner, difficulty) {
         TargetDifficulty: difficulty,
         timestamp: Date.now()
     };
-
     const hash = blockchain_tool.calculateHash(header);
 
     if (blockchain_tool.difficulty(hash) < difficulty) {
@@ -52,15 +52,17 @@ function createNewBlock(index, pre_hash, data, miner, difficulty) {
         header: new_header,
         data: data,
         // need to calculate the output from data
-        output:[]
+        output:output
     };
 
     return block;
 }
 
-function blockChecker (){
+function blockChecker (block){
 
 }
+
+
 
 
 module.exports = {

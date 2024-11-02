@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import MenuBar from './components/menu';
 import config from './components/config.json';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const NodePage = () => {
   const [host, setHost] = useState('');
@@ -24,7 +26,7 @@ const NodePage = () => {
     if (response.ok) {
       setSubmitted(true);
     } else {
-      alert('Failed to connect');
+      toast.error('Failed to connect');
     }
   };
 
@@ -35,9 +37,9 @@ const NodePage = () => {
     });
 
     if (response.ok) {
-      alert('Block mined successfully');
+      toast.success('Block mined successfully');
     } else {
-      alert('Failed to mine block');
+      toast.error('Failed to mine block');
     }
     setMining(false);
   };
@@ -80,6 +82,7 @@ const NodePage = () => {
       <button onClick={handleMineBlock} disabled={mining}>
         {mining ? 'Mining...' : 'Mine New Block'}
       </button>
+      <ToastContainer />
     </div>
   );
 };
