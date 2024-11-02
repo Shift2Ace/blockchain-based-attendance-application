@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import MenuBar from './components/menu';
 import CryptoJS from 'crypto-js';
+import config from './components/config.json';
+
 
 const ManageAddresses = () => {
   const [addresses, setAddresses] = useState([]);
@@ -8,6 +10,7 @@ const ManageAddresses = () => {
   const [data, setData] = useState(null);
   const [password, setPassword] = useState('');
   const [decryptedPrivateKey, setDecryptedPrivateKey] = useState('');
+  const [balance, setBalance] = useState(null); // New state for balance
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -25,6 +28,7 @@ const ManageAddresses = () => {
     setData(storedData);
     setDecryptedPrivateKey('');
     setError(''); // Clear error message when a new address is selected
+    fetchBalance(selected); // Fetch balance when an address is selected
   };
 
   const handlePasswordChange = (e) => {
@@ -55,6 +59,18 @@ const ManageAddresses = () => {
       setData(null);
       setDecryptedPrivateKey('');
       setError(''); // Clear error message after deletion
+      setBalance(null); // Clear balance after deletion
+    }
+  };
+
+  const fetchBalance = async (address) => {
+    try {
+      const response = await fetch(`${config.API_URL}/wallet/balance/${address}`);
+      const result = await response.json();
+      setBalance(result.balance);
+    } catch (error) {
+      console.log(error)
+      setError('Failed to fetch balance');
     }
   };
 
@@ -99,6 +115,9 @@ const ManageAddresses = () => {
               />
               <button onClick={handleDecryptPrivateKey}>Decrypt Private Key</button>
             </div>
+          )}
+          {balance !== null && (
+            <p><strong>Balance:</strong> {balance}</p>
           )}
         </div>
       )}

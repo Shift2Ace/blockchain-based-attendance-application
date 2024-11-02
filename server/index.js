@@ -7,9 +7,10 @@ const R = require('ramda');
 
 
 const fileManger = require('./lib/file_manager');
-const nodeManager = require('./lib/node/node_manager');
+const nodeManager = require('./lib/node_manager');
 const validator = require('./lib/validator')
 const blockchainManager = require('./lib/blockchain');
+const walletManager = require('./lib/wallet')
 const { register } = require('module');
 
 app.use(express.json());
@@ -58,7 +59,6 @@ const allowed_url_limiter = (req, res, next) => {
 // Only can post through the localhost
 const localhost_limiter = (req, res, next) => {
   const referer = req.get('Referer');
-  console.log(referer)
   if (referer == 'http://localhost:3000/')  {
     next();
   } else {
@@ -201,15 +201,15 @@ app.post('/wallet/sid_register', (req, res) => {
   });
 });
 
-app.post('/blockchain/mine', (req, res) => {
+app.post('/blockchain/mine',localhost_limiter, (req, res) => {
+  const address = req.body.address;
   let block = null;
   const startTime = Date.now();
 
   while (!block && (Date.now() - startTime < 5000)) {
     let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
     var index = blockchainData.length;
-    // mine the block
-    block = blockchainManager.createNewBlock(index, blockchainData, [], "test", blockchainManager.adjustDifficulty(blockchainData, index));
+    block = blockchainManager.createNewBlock(index, blockchainData, [], address, blockchainManager.adjustDifficulty(blockchainData, index));
   }
 
   if (block) {
@@ -219,6 +219,18 @@ app.post('/blockchain/mine', (req, res) => {
     res.status(200).json({ message: 'Block mined successfully'});
   } else {
     res.status(200).json({ message: 'No block mined' });
+  }
+});
+
+app.get('/wallet/balance/:address', (req, res) => {
+  const address = req.params.address;
+  const blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  
+  try {
+    const balance = walletManager.getBalance(blockchainData, address);
+    res.json({ balance });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while fetching the balance.' });
   }
 });
 

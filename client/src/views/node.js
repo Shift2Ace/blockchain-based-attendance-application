@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import MenuBar from './components/menu';
 import config from './components/config.json';
@@ -10,9 +10,19 @@ const NodePage = () => {
   const [port, setPort] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [mining, setMining] = useState(false);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState('');
   const miningRef = useRef(false);
 
   const isLocalhost = window.location.hostname === 'localhost';
+
+  useEffect(() => {
+    // Load addresses from localStorage and sort them
+    const storedAddresses = Object.keys(localStorage)
+      .filter(key => key.startsWith('address_'))
+      .sort();
+    setAddresses(storedAddresses);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,12 +42,22 @@ const NodePage = () => {
   };
 
   const handleMineBlock = async () => {
+
+    if (!selectedAddress) {
+      toast.error('Please select an address');
+      return;
+    }
+
     setMining(true);
     miningRef.current = true;
     let response;
     do {
       response = await fetch(`${config.API_URL}/blockchain/mine`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ address: selectedAddress }),
       });
 
       const result = await response.json();
@@ -98,6 +118,18 @@ const NodePage = () => {
         </div>
         <button type="submit">Connect</button>
       </form>
+      <label htmlFor="address">Select Address:</label>
+        <select
+          id="address"
+          value={selectedAddress}
+          onChange={(e) => setSelectedAddress(e.target.value)}
+          required
+        >
+          <option value="">Select an address</option>
+          {addresses.map(address => (
+            <option key={address} value={address}>{address}</option>
+          ))}
+        </select>
       <button onClick={toggleMining}>
         {mining ? 'Stop Mining' : 'Start Mining'}
       </button>
