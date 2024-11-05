@@ -14,7 +14,6 @@ const ManageAddresses = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Load addresses from localStorage and sort them
     const storedAddresses = Object.keys(localStorage)
       .filter(key => key.startsWith('address_'))
       .sort();
@@ -24,12 +23,22 @@ const ManageAddresses = () => {
   const handleAddressSelect = (e) => {
     const selected = e.target.value;
     setSelectedAddress(selected);
-    const storedData = JSON.parse(localStorage.getItem(selected));
-    setData(storedData);
-    setDecryptedPrivateKey('');
-    setError(''); // Clear error message when a new address is selected
-    fetchBalance(storedData.address); // Fetch balance when an address is selected
+  
+    if (selected === "") {
+      // Reset state when default option is selected
+      setData(null);
+      setDecryptedPrivateKey('');
+      setError('');
+      setBalance(null);
+    } else {
+      const storedData = JSON.parse(localStorage.getItem(selected));
+      setData(storedData);
+      setDecryptedPrivateKey('');
+      setError('');
+      fetchBalance(storedData.address);
+    }
   };
+  
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -93,7 +102,10 @@ const ManageAddresses = () => {
           <>
             <button onClick={handleDeleteAddress}>Delete Address</button>
             <a href={`/wallet/register?address=${selectedAddress}`}>
-              <button>Go to SID Register</button>
+              <button>SID Register</button>
+            </a>
+            <a href={`/wallet/transaction?address=${selectedAddress}`}>
+              <button>transaction</button>
             </a>
           </>
         )}
