@@ -66,33 +66,35 @@ function getBlockOutput(miner, data, blockchain) {
   });
 
   data.forEach((application) => {
-    // Check if toAddress is already in output
-    let toEntry = output.find(entry => entry.address === application.toAddress);
-    if (!toEntry) {
-      output.push({
-        address: application.toAddress,
-        balance: getBalance(application.toAddress)
+    if (application.type == 'transaction'){
+      // Check if toAddress is already in output
+      let toEntry = output.find(entry => entry.address === application.toAddress);
+      if (!toEntry) {
+        output.push({
+          address: application.toAddress,
+          balance: getBalance(application.toAddress)
+        });
+      }
+
+      // Check if fromAddress is already in output
+      let fromEntry = output.find(entry => entry.address === application.fromAddress);
+      if (!fromEntry) {
+        output.push({
+          address: application.fromAddress,
+          balance: getBalance(application.fromAddress)
+        });
+      }
+
+      // Update balances
+      output.forEach(entry => {
+        if (entry.address === application.toAddress) {
+          entry.balance += application.amount;
+        }
+        if (entry.address === application.fromAddress) {
+          entry.balance -= application.amount;
+        }
       });
     }
-
-    // Check if fromAddress is already in output
-    let fromEntry = output.find(entry => entry.address === application.fromAddress);
-    if (!fromEntry) {
-      output.push({
-        address: application.fromAddress,
-        balance: getBalance(application.fromAddress)
-      });
-    }
-
-    // Update balances
-    output.forEach(entry => {
-      if (entry.address === application.toAddress) {
-        entry.balance += application.amount;
-      }
-      if (entry.address === application.fromAddress) {
-        entry.balance -= application.amount;
-      }
-    });
   });
 
   return output;
