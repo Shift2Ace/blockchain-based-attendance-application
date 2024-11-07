@@ -257,7 +257,7 @@ app.post('/blockchain/mine',localhost_limiter, (req, res) => {
   let block = null;
   const startTime = Date.now();
   let recordsToUse = [];
-  while (!block && (Date.now() - startTime < 5000)) {
+  while (!block && (Date.now() - startTime < 6000)) {
     let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
     let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
     recordsToUse = applicationData.slice(0, 8); // Use up to 8 records
@@ -296,6 +296,8 @@ app.get('/wallet/balance/:address', (req, res) => {
 
 // attendance
 app.post('/attendance/add_new', (req, res) => {
+  let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
   const { index, timestamp, address, classId, signature, publicKey } = req.body;
   data = {
     index:index,
@@ -314,23 +316,22 @@ app.post('/attendance/add_new', (req, res) => {
     return res.status(400).send('Invalid signature');
   }
 
+  if(!validator.duplicateChecker (blockchainData,applicationData,index,signature)){
+    return res.status(400).send('Record duplicated');
+  }
+
   dataToSave = {
     type:"attendance",
     ... req.body
   }
 
   // Save data to application.json
-  const filePath = './data/application.json';
-  fileManger.checkAndSaveData(dataToSave, filePath, (err, isDuplicate) => {
-    if (err) {
+  fileManger.saveData(dataToSave, './data/application.json').then(success => {
+    if (success) {
+      return res.status(200).send('successfully');
+    } else {
       return res.status(500).send(err);
     }
-
-    if (isDuplicate) {
-      return res.status(400).send('Duplicate record with same SID and address');
-    }
-
-    res.status(200).send('SID registered successfully');
   });
 });
 

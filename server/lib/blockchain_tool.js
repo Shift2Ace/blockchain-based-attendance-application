@@ -53,30 +53,46 @@ function difficulty(hash) {
 
 
 function getBlockOutput(miner, data, blockchain) {
-  let balances = new Map();
+  let output = [];
 
   function getBalance(address) {
     return Wallet.getBalance(blockchain, address);
   }
 
-  balances.set(miner, getBalance(miner) + 50);
-
-  data.forEach((transaction) => {
-    if (transaction.type === "transaction") {
-      balances.set(
-        transaction.from_address,
-        getBalance(transaction.from_address) - transaction.amount
-      );
-      balances.set(
-        transaction.to_address,
-        getBalance(transaction.to_address) + transaction.amount
-      );
-    }
+  // Add miner's initial balance with reward
+  output.push({
+    address: miner,
+    balance: getBalance(miner) + 5
   });
 
-  let output = [];
-  balances.forEach((balance, address) => {
-    output.push({ address: address, balance: balance });
+  data.forEach((application) => {
+    // Check if toAddress is already in output
+    let toEntry = output.find(entry => entry.address === application.toAddress);
+    if (!toEntry) {
+      output.push({
+        address: application.toAddress,
+        balance: getBalance(application.toAddress)
+      });
+    }
+
+    // Check if fromAddress is already in output
+    let fromEntry = output.find(entry => entry.address === application.fromAddress);
+    if (!fromEntry) {
+      output.push({
+        address: application.fromAddress,
+        balance: getBalance(application.fromAddress)
+      });
+    }
+
+    // Update balances
+    output.forEach(entry => {
+      if (entry.address === application.toAddress) {
+        entry.balance += application.amount;
+      }
+      if (entry.address === application.fromAddress) {
+        entry.balance -= application.amount;
+      }
+    });
   });
 
   return output;
