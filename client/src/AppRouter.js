@@ -7,6 +7,7 @@ import AddressManager from './views/address_manager';
 import AddressAdd from './views/address_add';
 import SidRegister from './views/sid_register';
 import Attendance from './views/attendance'
+import Transaction from './views/transaction'
 
 import ExamplePage from './views/example';
 
@@ -17,6 +18,7 @@ const AppRouter = () => (
       <Route path="/wallet/create_address" element={<AddressCreate />} />
       <Route path="/wallet/add_address" element={<AddressAdd />} />
       <Route path="/wallet/register" element={<SidRegister />} />
+      <Route path="/wallet/transaction" element={<Transaction />} />
       <Route path="/wallet" element={<AddressManager />} />
       <Route path="/attendance" element={<Attendance />} />
       <Route path="/example" element={<ExamplePage />} />

@@ -1,7 +1,6 @@
 const blockchain_tool = require('./blockchain_tool')
 
-const MIN_DIFFICULTY = 10; 
-const INITIAL_DIFFICULTY = 10; 
+const MIN_DIFFICULTY = 14; 
 const TARGET_BLOCK_TIME = 10000; 
 const DIFFICULTY_ADJUSTMENT_INTERVAL = 5;
 
@@ -69,7 +68,7 @@ function blockChecker (block){
 
 function adjustDifficulty(blockchain, index) {
     if (index <= DIFFICULTY_ADJUSTMENT_INTERVAL) {
-        return INITIAL_DIFFICULTY;
+        return MIN_DIFFICULTY;
     }
 
     const first_adjustment_block = (Math.floor((index-1)/DIFFICULTY_ADJUSTMENT_INTERVAL)*DIFFICULTY_ADJUSTMENT_INTERVAL)-DIFFICULTY_ADJUSTMENT_INTERVAL;

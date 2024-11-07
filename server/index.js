@@ -163,6 +163,8 @@ app.post('/node/add_new', (req, res) => {
 
 // register SID
 app.post('/wallet/sid_register', (req, res) => {
+  let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
   const { index, timestamp, address, sid, signature, publicKey } = req.body;
   data = {
     index:index,
@@ -172,13 +174,15 @@ app.post('/wallet/sid_register', (req, res) => {
   }
 
   if (!validator.verifyAddress(publicKey, address)) {
-    console.log('Address does not match public key');
     return res.status(400).send('Address does not match public key');
   } 
   
   if (!validator.verifySignature(publicKey, data, signature)) {
-    console.log('Invalid signature');
     return res.status(400).send('Invalid signature');
+  }
+
+  if(!validator.duplicateChecker (blockchainData,applicationData,index,signature)){
+    return res.status(400).send('Record duplicated');
   }
 
   dataToSave = {
@@ -187,17 +191,63 @@ app.post('/wallet/sid_register', (req, res) => {
   }
 
   // Save data to application.json
-  const filePath = './data/application.json';
-  fileManger.checkAndSaveData(dataToSave, filePath, (err, isDuplicate) => {
-    if (err) {
+  fileManger.saveData(dataToSave, './data/application.json').then(success => {
+    if (success) {
+      return res.status(200).send('successfully');
+    } else {
       return res.status(500).send(err);
     }
+  });
+});
 
-    if (isDuplicate) {
-      return res.status(400).send('Duplicate record with same SID and address');
+// transaction
+app.post('/wallet/transaction', (req, res) => {
+  let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
+  const { index, timestamp, fromAddress, toAddress, amount, signature, publicKey } = req.body;
+  // duplicate check
+  
+  if(!validator.duplicateChecker (blockchainData,applicationData,index,signature)){
+    return res.status(400).send('Record duplicated');
+  }
+
+  // address check with public key
+  if (!validator.verifyAddress(publicKey, fromAddress)) {
+    return res.status(400).send('Address does not match public key');
+  } 
+
+  // amount check with balance and pre transaction
+  if(!validator.balanceChecker(blockchainData, applicationData, amount, fromAddress) || amount <= 0){
+    return res.status(400).send('Invalid Amount');
+  }
+
+  if(!validator.bs58AddressChecker(toAddress) || fromAddress == toAddress){
+    return res.status(400).send('Invalid Address');
+  }
+
+  data = {
+    index: index,
+    timestamp: timestamp,
+    fromAddress: fromAddress,
+    toAddress: toAddress,
+    amount: amount
+  }
+  // signature check
+  if (!validator.verifySignature(publicKey, data, signature)) {
+    return res.status(400).send('Invalid signature');
+  }
+
+  dataToSave = {
+    type:"transaction",
+    ... req.body
+  }
+
+  fileManger.saveData(dataToSave, './data/application.json').then(success => {
+    if (success) {
+      return res.status(200).send('successfully');
+    } else {
+      return res.status(500).send(err);
     }
-
-    res.status(200).send('SID registered successfully');
   });
 });
 
@@ -233,15 +283,16 @@ app.post('/blockchain/mine',localhost_limiter, (req, res) => {
 app.get('/wallet/balance/:address', (req, res) => {
   const address = req.params.address;
   const blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
   
   try {
     const balance = walletManager.getBalance(blockchainData, address);
-    res.json({ balance });
+    const preTransaction = walletManager.getPendingTransaction(applicationData, address)
+    res.json({ balance, preTransaction });
   } catch (error) {
     res.status(500).json({ error: 'An error occurred while fetching the balance.' });
   }
 });
-
 
 // attendance
 app.post('/attendance/add_new', (req, res) => {

@@ -10,6 +10,22 @@ function getBalance(blockchain, address){
     return 0
 }
 
+function getPendingTransaction(application, address){
+    var amount = 0;
+    for (let i = 0; i < application.length; i++){
+        if (application[i].type == 'transaction'){
+            if (application[i].fromAddress == address){
+                amount = amount - application[i].amount;
+            }
+            if (application[i].toAddress == address){
+                amount = amount + application[i].amount;
+            }
+        }
+    }
+    return amount;
+}
+
 module.exports = {
-    getBalance
+    getBalance,
+    getPendingTransaction
 };

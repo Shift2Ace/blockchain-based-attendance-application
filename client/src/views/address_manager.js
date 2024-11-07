@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import MenuBar from './components/menu';
 import CryptoJS from 'crypto-js';
 import config from './components/config.json';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageAddresses = () => {
   const [addresses, setAddresses] = useState([]);
@@ -10,8 +11,9 @@ const ManageAddresses = () => {
   const [data, setData] = useState(null);
   const [password, setPassword] = useState('');
   const [decryptedPrivateKey, setDecryptedPrivateKey] = useState('');
-  const [balance, setBalance] = useState(null); // New state for balance
-  const [error, setError] = useState('');
+  const [balance, setBalance] = useState(null);
+  const [preTransaction, setPreTransaction] = useState(null);
+  const [total, setTotal] = useState(null);
 
   useEffect(() => {
     const storedAddresses = Object.keys(localStorage)
@@ -25,20 +27,18 @@ const ManageAddresses = () => {
     setSelectedAddress(selected);
   
     if (selected === "") {
-      // Reset state when default option is selected
       setData(null);
       setDecryptedPrivateKey('');
-      setError('');
       setBalance(null);
+      setPreTransaction(null);
+      setTotal(null);
     } else {
       const storedData = JSON.parse(localStorage.getItem(selected));
       setData(storedData);
       setDecryptedPrivateKey('');
-      setError('');
       fetchBalance(storedData.address);
     }
   };
-  
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -51,12 +51,12 @@ const ManageAddresses = () => {
       const decryptedKey = decryptedBytes.toString(CryptoJS.enc.Utf8);
       if (decryptedKey) {
         setDecryptedPrivateKey(decryptedKey);
-        setError(''); // Clear error message on successful decryption
+        toast.success('Private key decrypted successfully!');
       } else {
-        setError('Incorrect password');
+        toast.error('Incorrect password');
       }
     } catch (err) {
-      setError('Failed to decrypt private key');
+      toast.error('Failed to decrypt private key');
     }
   };
 
@@ -67,8 +67,10 @@ const ManageAddresses = () => {
       setSelectedAddress('');
       setData(null);
       setDecryptedPrivateKey('');
-      setError(''); // Clear error message after deletion
-      setBalance(null); // Clear balance after deletion
+      setBalance(null);
+      setPreTransaction(null);
+      setTotal(null);
+      toast.success('Address deleted successfully!');
     }
   };
 
@@ -77,9 +79,11 @@ const ManageAddresses = () => {
       const response = await fetch(`${config.API_URL}/wallet/balance/${address}`);
       const result = await response.json();
       setBalance(result.balance);
+      setPreTransaction(result.preTransaction);
+      setTotal(result.balance + result.preTransaction);
     } catch (error) {
-      console.log(error)
-      setError('Failed to fetch balance');
+      console.log(error);
+      toast.error('Failed to fetch balance');
     }
   };
 
@@ -105,7 +109,7 @@ const ManageAddresses = () => {
               <button>SID Register</button>
             </a>
             <a href={`/wallet/transaction?address=${selectedAddress}`}>
-              <button>transaction</button>
+              <button>Transaction</button>
             </a>
           </>
         )}
@@ -128,12 +132,16 @@ const ManageAddresses = () => {
               <button onClick={handleDecryptPrivateKey}>Decrypt Private Key</button>
             </div>
           )}
-          {balance !== null && (
-            <p><strong>Balance:</strong> {balance}</p>
+          {balance !== null && preTransaction !== null && (
+            <>
+              <p><strong>Balance:</strong> {balance}</p>
+              <p><strong>Pre-Transaction:</strong> {preTransaction}</p>
+              <p><strong>Total:</strong> {total}</p>
+            </>
           )}
         </div>
       )}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ToastContainer />
     </div>
   );
 };

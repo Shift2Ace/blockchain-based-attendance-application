@@ -1,30 +1,40 @@
 const fs = require('fs');
 
-const checkAndSaveData = (dataToSave, filePath, callback) => {
-  fs.readFile(filePath, (err, data) => {
-    if (err && err.code !== 'ENOENT') {
-      return callback('Error reading file');
-    }
-
-    const jsonData = data ? JSON.parse(data) : [];
-    const isDuplicate = jsonData.some(record => record.index === dataToSave.index && record.address === dataToSave.address);
-
-    if (isDuplicate) {
-      return callback(null, true);
-    }
-
-    jsonData.push(dataToSave);
-
-    fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), (err) => {
+const saveData = (data, filePath) => {
+  return new Promise((resolve, reject) => {
+    // Read the existing data from the file
+    fs.readFile(filePath, 'utf8', (err, fileData) => {
       if (err) {
-        return callback('Error writing file');
+        console.error('Error reading file:', err);
+        return resolve(false);
       }
 
-      callback(null, false);
+      let jsonArray;
+      try {
+        // Parse the existing data as JSON
+        jsonArray = JSON.parse(fileData);
+      } catch (parseErr) {
+        console.error('Error parsing JSON:', parseErr);
+        return resolve(false);
+      }
+
+      // Add the new data to the array
+      jsonArray.push(data);
+
+      // Write the updated array back to the file
+      fs.writeFile(filePath, JSON.stringify(jsonArray, null, 2), 'utf8', (writeErr) => {
+        if (writeErr) {
+          console.error('Error writing file:', writeErr);
+          return resolve(false);
+        } else {
+          console.log('Data saved successfully!');
+          return resolve(true);
+        }
+      });
     });
   });
 };
 
 module.exports = {
-  checkAndSaveData
+  saveData
 };
