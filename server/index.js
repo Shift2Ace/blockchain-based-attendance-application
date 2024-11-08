@@ -251,6 +251,29 @@ app.post('/wallet/transaction', (req, res) => {
   });
 });
 
+// get balance by address
+app.get('/wallet/balance/:address', (req, res) => {
+  const address = req.params.address;
+  const blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
+  
+  try {
+    const balance = walletManager.getBalance(blockchainData, address);
+    const preTransaction = walletManager.getPendingTransaction(applicationData, address)
+    res.json({ balance, preTransaction });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while fetching the balance.' });
+  }
+});
+
+// get sid by address
+app.get('/wallet/sid/:address', (req, res) => {
+  const address = req.params.address;
+  const blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  const sid = walletManager.getSid(blockchainData,address);
+  res.json({ address, sid });
+});
+
 // mine the block
 app.post('/blockchain/mine',localhost_limiter, (req, res) => {
   const address = req.body.address;
@@ -280,30 +303,16 @@ app.post('/blockchain/mine',localhost_limiter, (req, res) => {
   }
 });
 
-app.get('/wallet/balance/:address', (req, res) => {
-  const address = req.params.address;
-  const blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
-  let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
-  
-  try {
-    const balance = walletManager.getBalance(blockchainData, address);
-    const preTransaction = walletManager.getPendingTransaction(applicationData, address)
-    res.json({ balance, preTransaction });
-  } catch (error) {
-    res.status(500).json({ error: 'An error occurred while fetching the balance.' });
-  }
-});
-
 // attendance
 app.post('/attendance/add_new', (req, res) => {
   let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
   let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
-  const { index, timestamp, address, classId, signature, publicKey } = req.body;
+  const { index, timestamp, address, classCode, signature, publicKey } = req.body;
   data = {
-    index:index,
-    timestamp:timestamp,
-    address:address,
-    classId:classId
+    index,
+    timestamp,
+    address,
+    classCode
   }
 
   if (!validator.verifyAddress(publicKey, address)) {

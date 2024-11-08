@@ -14,6 +14,7 @@ const ManageAddresses = () => {
   const [balance, setBalance] = useState(null);
   const [preTransaction, setPreTransaction] = useState(null);
   const [total, setTotal] = useState(null);
+  const [sid, setSid] = useState(null);
 
   useEffect(() => {
     const storedAddresses = Object.keys(localStorage)
@@ -32,13 +33,16 @@ const ManageAddresses = () => {
       setBalance(null);
       setPreTransaction(null);
       setTotal(null);
+      setSid(null); // Reset SID when no address is selected
     } else {
       const storedData = JSON.parse(localStorage.getItem(selected));
       setData(storedData);
       setDecryptedPrivateKey('');
       fetchBalance(storedData.address);
+      fetchSid(storedData.address); // Fetch SID for the selected address
     }
   };
+  
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -87,6 +91,23 @@ const ManageAddresses = () => {
     }
   };
 
+  const fetchSid = async (address) => {
+    try {
+      const response = await fetch(`${config.API_URL}/wallet/sid/${address}`);
+      const result = await response.json();
+      if (result.sid){
+        setSid(result.sid);
+      }else{
+        setSid("Not Registered Yet");
+      }
+     
+    } catch (error) {
+      console.log(error);
+      toast.error('Failed to fetch SID');
+    }
+  };
+  
+
   return (
     <div>
       <MenuBar />
@@ -117,6 +138,7 @@ const ManageAddresses = () => {
       {data && selectedAddress && (
         <div>
           <p><strong>Address:</strong> {data.address}</p>
+          <p><strong>Student ID:</strong> {sid}</p>
           <p><strong>Public Key:</strong> {data.publicKey}</p>
           {decryptedPrivateKey ? (
             <p><strong>Private Key:</strong> {decryptedPrivateKey}</p>
