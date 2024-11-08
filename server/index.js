@@ -344,6 +344,18 @@ app.post('/attendance/add_new', (req, res) => {
   });
 });
 
+// get attendance by address or class code
+app.get('/attendance/', (req, res) => {
+  const blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+  const address = req.query.address;
+  const sid = req.query.sid;
+  const classCode = req.query.classCode;
+  const startTime = req.query.startTime;
+  const endTime = req.query.endTime;
+  const attendance = blockchainManager.getAttendance(blockchainData, address, classCode, startTime, endTime);
+  res.json(attendance);
+});
+
 app.listen(server_port, () => {
   console.log(`Server running on http://localhost:${server_port}`);
 });

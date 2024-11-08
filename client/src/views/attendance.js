@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import bs58 from 'bs58';
 
+
 const AttendanceRegister = () => {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState('');
@@ -18,6 +19,15 @@ const AttendanceRegister = () => {
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [generatedClassCode, setGeneratedClassCode] = useState('');
+  const [attendanceData, setAttendanceData] = useState([]);
+
+  const [filterClassCode, setFilterClassCode] = useState('');
+  const [filterAddress, setFilterAddress] = useState('');
+  const [filterDate, setFilterDate] = useState('');
+  const [filterStartTime, setFilterStartTime] = useState('');
+  const [filterEndTime, setFilterEndTime] = useState('');
+
+
 
   useEffect(() => {
     // Load addresses from localStorage and sort them
@@ -25,7 +35,37 @@ const AttendanceRegister = () => {
       .filter(key => key.startsWith('address_'))
       .sort();
     setAddresses(storedAddresses);
-  }, []);
+    
+    const fetchAttendanceData = async () => {
+      try {
+        const params = new URLSearchParams();
+        if (filterClassCode) params.append('classCode', filterClassCode);
+        if (filterAddress) params.append('address', filterAddress);
+        if (filterDate) {
+          const date = new Date(filterDate);
+          let startTime = new Date(date.setHours(0, 0, 0, 0)).getTime();
+          let endTime = new Date(date.setHours(23, 59, 59, 999)).getTime();
+          if (filterStartTime) {
+            startTime = new Date(`${filterDate}T${filterStartTime}:00`).getTime();
+          }
+          if (filterEndTime) {
+            endTime = new Date(`${filterDate}T${filterEndTime}:00`).getTime();
+          }
+          params.append('startTime', startTime);
+          params.append('endTime', endTime);
+        }
+        const response = await fetch(`${config.API_URL}/attendance?${params.toString()}`);
+        const data = await response.json();
+        setAttendanceData(data);
+      } catch (error) {
+        console.error('Error fetching attendance data:', error);
+      }
+    };
+    
+    fetchAttendanceData();
+  }, [filterClassCode, filterAddress, filterDate, filterStartTime, filterEndTime]);
+
+  
 
   const handleAddressSelect = (e) => {
     setSelectedAddress(e.target.value);
@@ -172,6 +212,62 @@ const AttendanceRegister = () => {
     }
   };
   
+  const handleFilterChange = (filterName) => {
+    const { name, value } = filterName.target;
+    switch (name) {
+      case 'classCode':
+        setFilterClassCode(value);
+        break;
+      case 'address':
+        setFilterAddress(value);
+        break;
+      case 'date':
+        setFilterDate(value);
+        if (value === ''){
+          setFilterStartTime('');
+          setFilterEndTime('');
+        }
+        break;
+      case 'startTime':
+        setFilterStartTime(value);
+        if (filterEndTime){
+          const date1 = new Date();
+          const date2 = new Date();
+          const [hours1, minutes1] = value.split(':').map(Number);
+          const [hours2, minutes2] = filterEndTime.split(':').map(Number);
+          date1.setHours(hours1, minutes1, 0, 0);
+          date2.setHours(hours2, minutes2, 0, 0);
+          if (date1 > date2) {
+            setFilterStartTime(filterEndTime);
+          }
+        }
+        break;
+      case 'endTime':
+        setFilterEndTime(value);
+        if (filterStartTime){
+          const date1 = new Date();
+          const date2 = new Date();
+          const [hours1, minutes1] = value.split(':').map(Number);
+          const [hours2, minutes2] = filterStartTime.split(':').map(Number);
+          date1.setHours(hours1, minutes1, 0, 0);
+          date2.setHours(hours2, minutes2, 0, 0);
+          if (date1 < date2) {
+            setFilterEndTime(filterStartTime);
+          }
+        }
+        break;
+      case 'filterClear':
+        setFilterClassCode('');
+        setFilterAddress('');
+        setFilterDate('');
+        setFilterEndTime('');
+        setFilterStartTime('');
+        break;
+      default:
+        break;
+    }
+  };
+  
   return (
     <div>
       <MenuBar />
@@ -239,12 +335,86 @@ const AttendanceRegister = () => {
         </div>
         <button type="submit">Generate Class Code</button>
       </form>
+
       {generatedClassCode && (
         <div>
           <h3>Generated Class Code:</h3>
           <p>{generatedClassCode}</p>
         </div>
       )}
+
+      <h2>Attendance Records</h2>
+      
+      <input
+        name="address"
+        type="text"
+        value={filterAddress}
+        onChange={handleFilterChange}
+        placeholder='Address / SID'
+      />
+      <input
+        name="classCode"
+        type="text"
+        value={filterClassCode}
+        onChange={handleFilterChange}
+        placeholder='Class Code'
+      />
+      <div>
+        <label>Date: </label>
+        <input
+          name="date"
+          type="date"
+          value={filterDate}
+          onChange={handleFilterChange}
+          placeholder='Date'
+        />
+        <label>Start Time: </label>
+        <input
+          name="startTime"
+          type="time"
+          value={filterStartTime}
+          onChange={handleFilterChange}
+          disabled={filterDate === ""}
+          placeholder='Start Time'
+        />
+        <label>End Time: </label>
+        <input
+          name="endTime"
+          type="time"
+          value={filterEndTime}
+          onChange={handleFilterChange}
+          disabled={filterDate === ""}
+          placeholder='End Time'
+        />
+      </div>
+      <button
+        name='filterClear'
+        onClick={handleFilterChange}
+      >clear</button>
+      
+      
+      <table>
+        <thead>
+          <tr>
+            <th>Address</th>
+            <th>SID</th>
+            <th>Class Code</th>
+            <th>Date</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+        {attendanceData.map((record, index) => (
+          <tr key={index}>
+            <td>{record.address}</td>
+            <td>{record.sid}</td>
+            <td>{record.classCode}</td>
+            <td>{new Date(record.dateTime).toLocaleDateString()}</td>
+            <td>{new Date(record.dateTime).toLocaleTimeString()}</td>
+          </tr>
+        ))}
+          </tbody>
+      </table>
       <ToastContainer />
     </div>
   );

@@ -1,4 +1,5 @@
 const blockchain_tool = require('./blockchain_tool')
+const walletManager = require('./wallet')
 
 const MIN_DIFFICULTY = 14; 
 const TARGET_BLOCK_TIME = 10000; 
@@ -84,10 +85,32 @@ function adjustDifficulty(blockchain, index) {
     }
 }
 
+function getAttendance(blockchain, address, classCode, startTime, endTime) {
+    let attendances = [];
+    blockchain.forEach(block => {
+        block.data.forEach(data => {
+            if (data.type == 'attendance') {
+                let record = {
+                    address: data.address,
+                    sid: walletManager.getSid(blockchain,data.address),
+                    classCode: data.classCode,
+                    dateTime: data.timestamp
+                };
+                if (address && data.address !== address && record.sid !== address) return;
+                if (classCode && data.classCode !== classCode) return;
+                if (startTime && data.timestamp < startTime) return;
+                if (endTime && data.timestamp > endTime) return;
+                attendances.push(record);
+            }
+        });
+    });
+    return attendances;
+}
 
 
 module.exports = {
     createFirstBlock,
     createNewBlock,
-    adjustDifficulty
+    adjustDifficulty,
+    getAttendance
 }
