@@ -5,6 +5,11 @@ import config from './components/config.json';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import Container from 'react-bootstrap/Container';
+import './css/basic_style.css';
+import Form from 'react-bootstrap/Form';
+import { Card, Row, Col } from 'react-bootstrap';
+
 const NodePage = () => {
   const [host, setHost] = useState('');
   const [port, setPort] = useState('');
@@ -110,8 +115,62 @@ const NodePage = () => {
   return (
     <div>
       <MenuBar />
-      <h1>Node Page</h1>
-      <form onSubmit={handleSubmit}>
+      <Container className="marginTitle">
+        <h2><span class="badge text-bg-secondary">Node Page</span></h2>
+      </Container>
+      <Container className="marginTitle">
+        <Row>
+          <Col>
+            <Card style={{ width: '400px' }}>
+              <Card.Body>
+                <Form onSubmit={handleSubmit}>
+                  <h4><span class="badge text-bg-light">Node Connect</span></h4>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Host/IP:</Form.Label>
+                    <Form.Control type="text" placeholder="xxx.xxx.xxx.xxx" id="host" value={host} onChange={(e) => setHost(e.target.value)} required />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Port:</Form.Label>
+                    <Form.Control type="text" placeholder="Example:3000" id="port" value={port} onChange={(e) => setPort(e.target.value)} required />
+                  </Form.Group>
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">Connect</button>
+                  </div>
+                </Form>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+        <Row className="marginRow">
+          <Col>
+            <Card>
+              <Card.Body>
+                <Form>
+                  <h4><span class="badge text-bg-light">Node Select</span></h4>
+                  <Form.Group as={Row} className="mb-3">
+                    <Form.Label column sm="2">
+                      Select Address:
+                    </Form.Label>
+                    <Col sm="8">
+                      <select class="form-select" id="address" value={selectedAddress} onChange={handleAddressSelect} required>
+                        <option value="">Select Address</option>
+                        {addresses.map(address => (
+                          <option key={address} value={address}>{address}</option>
+                        ))}
+                      </select>
+                    </Col>
+                    <Col sm="2"> 
+                      <button class="btn btn-primary" onClick={toggleMining}> {mining ? 'Stop Mining' : 'Start Mining'}</button>
+                    </Col>
+                  </Form.Group>
+                </Form>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+
+      {/* <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="host">Host/IP:</label>
           <input
@@ -133,22 +192,23 @@ const NodePage = () => {
           />
         </div>
         <button type="submit">Connect</button>
-      </form>
-      <label htmlFor="address">Select Address:</label>
-        <select
-          id="address"
-          value={selectedAddress}
-          onChange={handleAddressSelect}
-          required
-        >
-          <option value="">Select Address</option>
-          {addresses.map(address => (
-            <option key={address} value={address}>{address}</option>
-          ))}
-        </select>
+      </form> */}
+
+      {/* <label htmlFor="address">Select Address:</label>
+      <select
+        id="address"
+        value={selectedAddress}
+        onChange={handleAddressSelect}
+        required
+      >
+        <option value="">Select Address</option>
+        {addresses.map(address => (
+          <option key={address} value={address}>{address}</option>
+        ))}
+      </select>
       <button onClick={toggleMining}>
         {mining ? 'Stop Mining' : 'Start Mining'}
-      </button>
+      </button> */}
       <ToastContainer />
     </div>
   );
