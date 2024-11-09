@@ -63,6 +63,8 @@ const AttendanceRegister = () => {
     };
     
     fetchAttendanceData();
+    const intervalId = setInterval(fetchAttendanceData, 2000);
+    return () => clearInterval(intervalId);
   }, [filterClassCode, filterAddress, filterDate, filterStartTime, filterEndTime]);
 
   
