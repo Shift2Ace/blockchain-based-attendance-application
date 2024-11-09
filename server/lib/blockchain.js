@@ -87,25 +87,45 @@ function adjustDifficulty(blockchain, index) {
 
 function getAttendance(blockchain, address, classCode, startTime, endTime) {
     let attendances = [];
+    let latestRecords = new Map();
+
     blockchain.forEach(block => {
         block.data.forEach(data => {
             if (data.type == 'attendance') {
                 let record = {
                     address: data.address,
-                    sid: walletManager.getSid(blockchain,data.address),
+                    sid: walletManager.getSid(blockchain, data.address),
                     classCode: data.classCode,
                     dateTime: data.timestamp
                 };
+
                 if (address && data.address !== address && record.sid !== address) return;
                 if (classCode && data.classCode !== classCode) return;
                 if (startTime && data.timestamp < startTime) return;
                 if (endTime && data.timestamp > endTime) return;
-                attendances.push(record);
+
+                if (classCode) {
+                    // Only keep the latest record for each address
+                    if (!latestRecords.has(data.address) || latestRecords.get(data.address).dateTime < data.timestamp) {
+                        latestRecords.set(data.address, record);
+                    }
+                } else {
+                    attendances.push(record);
+                }
             }
         });
     });
+
+    if (classCode) {
+        attendances = Array.from(latestRecords.values());
+    }
+
+    // Sort attendances by dateTime in descending order
+    attendances.sort((a, b) => b.dateTime - a.dateTime);
+
     return attendances;
 }
+
 
 
 module.exports = {

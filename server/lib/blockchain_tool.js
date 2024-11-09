@@ -62,7 +62,7 @@ function getBlockOutput(miner, data, blockchain) {
   // Add miner's initial balance with reward
   output.push({
     address: miner,
-    balance: getBalance(miner) + 5
+    balance: getBalance(miner) + 10 + data.length
   });
 
   data.forEach((application) => {
