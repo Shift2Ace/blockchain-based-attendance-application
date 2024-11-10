@@ -150,10 +150,10 @@ const ManageAddresses = () => {
                     <>
                       <button onClick={handleDeleteAddress}>Delete Address</button>
                       <a href={`/wallet/register?address=${selectedAddress}`}>
-                        <button>SID Register</button>
+                        SID Register
                       </a>
                       <a href={`/wallet/transaction?address=${selectedAddress}`}>
-                        <button>Transaction</button>
+                        Transaction
                       </a>
                     </>
                   )}
