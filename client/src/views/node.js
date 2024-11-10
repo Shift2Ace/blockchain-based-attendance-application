@@ -63,7 +63,7 @@ const NodePage = () => {
   };
 
   const handleMineBlock = async () => {
-
+    
     if (!selectedAddress) {
       toast.error('Please select an address');
       return;
@@ -80,7 +80,6 @@ const NodePage = () => {
         },
         body: JSON.stringify({ address: data.address }),
       });
-
       const result = await response.json();
       if (result.message === 'Block mined successfully') {
         toast.success(result.message);
@@ -95,7 +94,8 @@ const NodePage = () => {
     miningRef.current = false;
   };
 
-  const toggleMining = () => {
+  const toggleMining = (e) => {
+    e.preventDefault();
     if (!mining) {
       handleMineBlock();
     } else {
@@ -116,7 +116,7 @@ const NodePage = () => {
     <div>
       <MenuBar />
       <Container className="marginTitle">
-        <h2><span class="badge text-bg-secondary">Node Page</span></h2>
+        <h2><span className="badge text-bg-secondary">Node Page</span></h2>
       </Container>
       <Container className="marginTitle">
         <Row>
@@ -124,17 +124,17 @@ const NodePage = () => {
             <Card style={{ width: '400px' }}>
               <Card.Body>
                 <Form onSubmit={handleSubmit}>
-                  <h4><span class="badge text-bg-light">Node Connect</span></h4>
+                  <h4><span className="badge text-bg-light">Node Connect</span></h4>
                   <Form.Group className="mb-3">
                     <Form.Label>Host/IP:</Form.Label>
-                    <Form.Control type="text" placeholder="xxx.xxx.xxx.xxx" id="host" value={host} onChange={(e) => setHost(e.target.value)} required />
+                    <Form.Control type="text" placeholder="(123.123.123.123) / (example.com)" id="host" value={host} onChange={(e) => setHost(e.target.value)} required />
                   </Form.Group>
                   <Form.Group className="mb-3">
                     <Form.Label>Port:</Form.Label>
-                    <Form.Control type="text" placeholder="Example:3000" id="port" value={port} onChange={(e) => setPort(e.target.value)} required />
+                    <Form.Control type="text" placeholder="(3000)" id="port" value={port} onChange={(e) => setPort(e.target.value)} required />
                   </Form.Group>
-                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn btn-primary">Connect</button>
+                  <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" className="btn btn-primary">Connect</button>
                   </div>
                 </Form>
               </Card.Body>
@@ -143,26 +143,21 @@ const NodePage = () => {
         </Row>
         <Row className="marginRow">
           <Col>
-            <Card>
+            <Card style={{ width: '400px' }}>
               <Card.Body>
-                <Form>
-                  <h4><span class="badge text-bg-light">Node Select</span></h4>
-                  <Form.Group as={Row} className="mb-3">
-                    <Form.Label column sm="2">
-                      Select Address:
-                    </Form.Label>
-                    <Col sm="8">
-                      <select class="form-select" id="address" value={selectedAddress} onChange={handleAddressSelect} required>
-                        <option value="">Select Address</option>
-                        {addresses.map(address => (
-                          <option key={address} value={address}>{address}</option>
-                        ))}
-                      </select>
-                    </Col>
-                    <Col sm="2"> 
-                      <button class="btn btn-primary" onClick={toggleMining}> {mining ? 'Stop Mining' : 'Start Mining'}</button>
-                    </Col>
+                <Form onSubmit={toggleMining}>
+                  <h4><span className="badge text-bg-light">Mining</span></h4>
+                  <Form.Group className="mb-3">
+                    <select className="form-select" id="address" value={selectedAddress} onChange={handleAddressSelect} required>
+                      <option value="">Select Address</option>
+                      {addresses.map(address => (
+                        <option key={address} value={address}>{address}</option>
+                      ))}
+                    </select>
                   </Form.Group>
+                    <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                      <button type='submit' className="btn btn-primary"> {mining ? 'Stop Mining' : 'Start Mining'}</button>
+                    </div>
                 </Form>
               </Card.Body>
             </Card>
