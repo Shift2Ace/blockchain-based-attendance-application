@@ -156,7 +156,9 @@ const NodePage = () => {
                     </select>
                   </Form.Group>
                     <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                      <button type='submit' className="btn btn-primary"> {mining ? 'Stop Mining' : 'Start Mining'}</button>
+                      <button type='submit' className={`btn btn-primary ${mining ? 'btn-danger' : ''}`}>
+                        {mining ? 'Stop Mining' : 'Start Mining'}
+                      </button>                    
                     </div>
                 </Form>
               </Card.Body>
