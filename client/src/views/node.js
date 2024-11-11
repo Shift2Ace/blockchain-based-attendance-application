@@ -116,7 +116,7 @@ const NodePage = () => {
     <div>
       <MenuBar />
       <Container className="marginTitle">
-        <h2><span className="badge text-bg-secondary">Node Page</span></h2>
+        <h2><span className="badge text-bg-secondary">Node Control Panel</span></h2>
       </Container>
       <Container className="marginTitle">
         <Row>
@@ -157,7 +157,7 @@ const NodePage = () => {
                   </Form.Group>
                     <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                       <button type='submit' className={`btn btn-primary ${mining ? 'btn-danger' : ''}`}>
-                        {mining ? 'Stop Mining' : 'Start Mining'}
+                        {mining ? 'Stop' : 'Start'}
                       </button>                    
                     </div>
                 </Form>
@@ -166,46 +166,6 @@ const NodePage = () => {
           </Col>
         </Row>
       </Container>
-
-      {/* <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="host">Host/IP:</label>
-          <input
-            type="text"
-            id="host"
-            value={host}
-            onChange={(e) => setHost(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="port">Port:</label>
-          <input
-            type="text"
-            id="port"
-            value={port}
-            onChange={(e) => setPort(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Connect</button>
-      </form> */}
-
-      {/* <label htmlFor="address">Select Address:</label>
-      <select
-        id="address"
-        value={selectedAddress}
-        onChange={handleAddressSelect}
-        required
-      >
-        <option value="">Select Address</option>
-        {addresses.map(address => (
-          <option key={address} value={address}>{address}</option>
-        ))}
-      </select>
-      <button onClick={toggleMining}>
-        {mining ? 'Stop Mining' : 'Start Mining'}
-      </button> */}
       <ToastContainer />
     </div>
   );
