@@ -164,7 +164,7 @@ const SidRegister = () => {
                 />
               </Form.Group>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                <Button variant="primary" type="submit">Register SID</Button>
+                <Button variant="primary" type="submit">Submit</Button>
               </div>
             </Form>
           </Card.Body>
