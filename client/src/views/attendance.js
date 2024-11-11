@@ -453,7 +453,7 @@ const AttendanceRegister = () => {
               <Modal.Body style={{ textAlign: 'center' }}>
                 <h3>{generatedClassCode}</h3>
               </Modal.Body>
-          </Modal>
+            </Modal>
           </Card.Body>
         </Card>
       </Container>
