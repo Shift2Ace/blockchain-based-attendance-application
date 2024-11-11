@@ -9,8 +9,7 @@ import zxcvbn from 'zxcvbn';
 import Container from 'react-bootstrap/Container';
 import './css/basic_style.css';
 import Form from 'react-bootstrap/Form';
-import { Card, Row, Col } from 'react-bootstrap';
-import Accordion from 'react-bootstrap/Accordion';
+import { Card} from 'react-bootstrap';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -51,7 +50,7 @@ const SaveKeys = () => {
         return 'Unknown';
     }
   };
-  
+
   const handleSaveKeys = (e) => {
     e.preventDefault();
 
@@ -81,7 +80,7 @@ const SaveKeys = () => {
       const addressKey = `address_${name}_${addressCount}`;
       localStorage.setItem(addressKey, JSON.stringify(encryptedData));
       toast.success('Keys saved successfully!');
-      toast.success('Keys saved as ' + addressKey);
+      toast.success(`Keys saved as ${addressKey}`);
       setPrivateKey('');
       setPassword('');
       setName('');

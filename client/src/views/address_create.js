@@ -10,8 +10,7 @@ import bs58 from 'bs58';
 import Container from 'react-bootstrap/Container';
 import './css/basic_style.css';
 import Form from 'react-bootstrap/Form';
-import { Card, Row, Col } from 'react-bootstrap';
-import Accordion from 'react-bootstrap/Accordion';
+import { Card} from 'react-bootstrap';
 
 const { Buffer } = require('buffer');
 
@@ -51,6 +50,7 @@ const Wallet = () => {
       const addressCount = Object.keys(localStorage).filter(key => key.startsWith(`address_${name}_`)).length + 1;
       localStorage.setItem(`address_${name}_${addressCount}`, JSON.stringify(encryptedData));
       toast.success('Address created successfully!');
+      toast.success(`Keys saved as address_${name}_${addressCount}`);
     } catch (err) {
       toast.error('Failed to create address');
     }
@@ -125,7 +125,6 @@ const Wallet = () => {
                 <p><strong>Public Key:</strong> {data.publicKey}</p>
                 <p><strong>Address:</strong> {data.address}</p>
                 <p><strong>Hashed Password:</strong> {data.hashedPassword}</p>
-                <p><strong>Data saved in:</strong> {`address_${name}_${Object.keys(localStorage).filter(key => key.startsWith(`address_${name}_`)).length}`}</p>
               </div>
             )}
           </Card.Body>
