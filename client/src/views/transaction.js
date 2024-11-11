@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Form, Button, Container, Card, Modal } from 'react-bootstrap';
 import MenuBar from './components/menu';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
@@ -143,55 +144,68 @@ const Transaction = () => {
   return (
     <div>
       <MenuBar />
-      <h1>Transaction Page</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Address:</label>
-          <select onChange={handleAddressSelect} value={selectedAddress}>
-            {addresses.map(address => (
-              <option key={address} value={address}>{address}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-          />
-        </div>
-        <div>
-          <label>To Address:</label>
-          <input
-            type="text"
-            value={toAddress}
-            onChange={handleToAddressChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Amount:</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={handleAmountChange}
-            required
-          />
-        </div>
-        {isConfirming ? (
-          <div>
-            <p>Confirm the transaction details:</p>
-            <p>To Address: {toAddress}</p>
-            <p>Amount: {amount}</p>
-            <button type="button" onClick={handleCancel}>Cancel</button>
-            <button type="submit">Confirm</button>
-          </div>
-        ) : (
-          <button type="button" onClick={handleConfirm}>Proceed</button>
-        )}
-      </form>
+      <Container className="marginTitle">
+        <h2><span className="badge text-bg-secondary">Transaction Page</span></h2>
+      </Container>
+      <Container className="marginTitle">
+        <Card style={{ width: '400px' }}>
+          <Card.Body>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>Address:</Form.Label>
+                <Form.Control as="select" onChange={handleAddressSelect} value={selectedAddress}>
+                  {addresses.map(address => (
+                    <option key={address} value={address}>{address}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Password:</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>To Address:</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={toAddress}
+                  onChange={handleToAddressChange}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Amount:</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={amount}
+                  onChange={handleAmountChange}
+                  required
+                />
+              </Form.Group>
+              <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                <Button variant="primary" onClick={handleConfirm}>Submit</Button>
+              </div>
+            </Form>
+          </Card.Body>
+        </Card>
+      </Container>
+      <Modal show={isConfirming} onHide={handleCancel}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Transaction</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>To Address: {toAddress}</p>
+          <p>Amount: {amount}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancel}>Cancel</Button>
+          <Button variant="primary" onClick={handleSubmit}>Confirm</Button>
+        </Modal.Footer>
+      </Modal>
       <ToastContainer />
     </div>
   );

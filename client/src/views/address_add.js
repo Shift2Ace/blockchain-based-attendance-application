@@ -3,28 +3,59 @@ import MenuBar from './components/menu';
 import CryptoJS from 'crypto-js';
 import { ec as EC } from 'elliptic';
 import bs58 from 'bs58';
+import zxcvbn from 'zxcvbn';
+
+
+import Container from 'react-bootstrap/Container';
+import './css/basic_style.css';
+import Form from 'react-bootstrap/Form';
+import { Card} from 'react-bootstrap';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const { Buffer } = require('buffer');
 
 const SaveKeys = () => {
   const [privateKey, setPrivateKey] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [savedAddress, setSavedAddress] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState(null);
 
   const isValidPrivateKey = (key) => {
     // Check if the key is a 32-byte hexadecimal string
     return /^[0-9a-fA-F]{64}$/.test(key);
   };
 
+  const handlePasswordChange = (e) => {
+    const pwd = e.target.value;
+    setPassword(pwd);
+    const score = zxcvbn(pwd).score;
+    setPasswordStrength(getPasswordStrengthWord(score));
+  };
+
+
+  const getPasswordStrengthWord = (score) => {
+    switch (score) {
+      case 0:
+        return 'Very Weak';
+      case 1:
+        return 'Weak';
+      case 2:
+        return 'Fair';
+      case 3:
+        return 'Good';
+      case 4:
+        return 'Strong';
+      default:
+        return 'Unknown';
+    }
+  };
+
   const handleSaveKeys = (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     if (!isValidPrivateKey(privateKey)) {
-      setError('Invalid private key. It must be a 32-byte hexadecimal string.');
+      toast.error('Invalid private key');
       return;
     }
 
@@ -48,54 +79,61 @@ const SaveKeys = () => {
       const addressCount = Object.keys(localStorage).filter(key => key.startsWith(`address_${name}_`)).length + 1;
       const addressKey = `address_${name}_${addressCount}`;
       localStorage.setItem(addressKey, JSON.stringify(encryptedData));
-      setSavedAddress(addressKey);
-      setSuccess('Keys saved successfully!');
+      toast.success('Keys saved successfully!');
+      toast.success(`Keys saved as ${addressKey}`);
+      setPrivateKey('');
+      setPassword('');
+      setName('');
     } catch (err) {
-      setError('Failed to save keys');
+      toast.error('Failed to save keys');
     }
   };
 
   return (
     <div>
       <MenuBar />
-      <h1>Add Address</h1>
-      <form onSubmit={handleSaveKeys}>
-        <div>
-          <label>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Private Key:</label>
-          <input
-            type="text"
-            value={privateKey}
-            onChange={(e) => setPrivateKey(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Save Keys</button>
-      </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && (
-        <div>
-          <p style={{ color: 'green' }}>{success}</p>
-          <p><strong>Data saved in:</strong> {savedAddress}</p>
-        </div>
-      )}
+      <Container className="marginTitle">
+        <h2><span className="badge text-bg-secondary">Add Address</span></h2>
+      </Container>
+      <Container className="marginTitle">
+        <Card style={{ width: '400px' }}>
+          <Card.Body>
+            <Form onSubmit={handleSaveKeys}>
+              <Form.Group className="mb-3">
+                <Form.Label>Name:</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Private Key:</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={privateKey}
+                  onChange={(e) => setPrivateKey(e.target.value)}
+                  required />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Password:</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  required />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Password strength:</Form.Label> {passwordStrength !== null && passwordStrength}
+              </Form.Group>
+              <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" className="btn btn-primary">Save Keys</button>
+              </div>
+            </Form>
+          </Card.Body>
+        </Card>
+      </Container>
+      <ToastContainer />
     </div>
   );
 };

@@ -7,6 +7,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import bs58 from 'bs58';
 
+import Container from 'react-bootstrap/Container';
+import './css/basic_style.css';
+import Form from 'react-bootstrap/Form';
+import { Modal, Card, Row, Col } from 'react-bootstrap';
+import Accordion from 'react-bootstrap/Accordion';
+
 
 const AttendanceRegister = () => {
   const [addresses, setAddresses] = useState([]);
@@ -27,6 +33,8 @@ const AttendanceRegister = () => {
   const [filterStartTime, setFilterStartTime] = useState('');
   const [filterEndTime, setFilterEndTime] = useState('');
 
+  const [showModal, setShowModal] = useState(false);
+
 
 
   useEffect(() => {
@@ -35,7 +43,7 @@ const AttendanceRegister = () => {
       .filter(key => key.startsWith('address_'))
       .sort();
     setAddresses(storedAddresses);
-    
+
     const fetchAttendanceData = async () => {
       try {
         const params = new URLSearchParams();
@@ -61,13 +69,13 @@ const AttendanceRegister = () => {
         console.error('Error fetching attendance data:', error);
       }
     };
-    
+
     fetchAttendanceData();
     const intervalId = setInterval(fetchAttendanceData, 2000);
     return () => clearInterval(intervalId);
   }, [filterClassCode, filterAddress, filterDate, filterStartTime, filterEndTime]);
 
-  
+
 
   const handleAddressSelect = (e) => {
     setSelectedAddress(e.target.value);
@@ -99,7 +107,7 @@ const AttendanceRegister = () => {
     return classCodePattern.test(classCode);
   };
 
-  const handleSubmit = async (e) => {
+  const handleAttendanceSubmit = async (e) => {
     e.preventDefault();
 
     if (!isValidClassCode(classCode)) {
@@ -108,7 +116,7 @@ const AttendanceRegister = () => {
     }
 
     try {
-      if (!password){
+      if (!password) {
         toast.error('Invalid address and password');
         return;
       }
@@ -131,7 +139,7 @@ const AttendanceRegister = () => {
         // Generate the signature using the private key
         const ec = new EC('secp256k1');
         const keyPair = ec.keyFromPrivate(decryptedKey, 'hex');
-        
+
         // Create the message to be signed
         const message = {
           index,
@@ -175,27 +183,29 @@ const AttendanceRegister = () => {
       console.log(err);
       toast.error('Failed to decrypt private key or register attendance');
     }
+    setClassCode("")
+    setPassword("")
   };
 
   const handleGenerateClassCode = async (e) => {
     e.preventDefault();
-  
+
     try {
       const storedData = JSON.parse(localStorage.getItem(selectedAddress));
-      if (!password){
+      if (!password) {
         toast.error('Invalid address and password');
         return;
       }
       const hashedPassword = CryptoJS.SHA256(password).toString();
-      
+
       if (hashedPassword !== storedData.hashedPassword) {
         toast.error('Invalid address and password');
         return;
       }
-  
+
       const decryptedBytes = CryptoJS.AES.decrypt(storedData.privateKey, hashedPassword);
       const decryptedKey = decryptedBytes.toString(CryptoJS.enc.Utf8);
-    
+
       if (decryptedKey) {
         // Generate the class code
         const classCodeData = `${classId}${date}${startTime}${decryptedKey}`;
@@ -204,16 +214,18 @@ const AttendanceRegister = () => {
         const classCodeBytes = CryptoJS.lib.WordArray.create(classCodeWordArray.words.slice(0, 5)).toString(CryptoJS.enc.Hex);
         const classCodeUint8Array = new Uint8Array(classCodeBytes.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
         const classCodeBase58 = bs58.encode(classCodeUint8Array).slice(0, 10); // Ensure it's 10 characters
-  
+
         setGeneratedClassCode(classCodeBase58);
+        setShowModal(true);
       } else {
         toast.error('Incorrect password');
       }
     } catch (err) {
       toast.error('Failed to decrypt private key or generate class code');
     }
+    setPassword("")
   };
-  
+
   const handleFilterChange = (filterName) => {
     const { name, value } = filterName.target;
     switch (name) {
@@ -225,14 +237,14 @@ const AttendanceRegister = () => {
         break;
       case 'date':
         setFilterDate(value);
-        if (value === ''){
+        if (value === '') {
           setFilterStartTime('');
           setFilterEndTime('');
         }
         break;
       case 'startTime':
         setFilterStartTime(value);
-        if (filterEndTime){
+        if (filterEndTime) {
           const date1 = new Date();
           const date2 = new Date();
           const [hours1, minutes1] = value.split(':').map(Number);
@@ -246,7 +258,7 @@ const AttendanceRegister = () => {
         break;
       case 'endTime':
         setFilterEndTime(value);
-        if (filterStartTime){
+        if (filterStartTime) {
           const date1 = new Date();
           const date2 = new Date();
           const [hours1, minutes1] = value.split(':').map(Number);
@@ -269,154 +281,182 @@ const AttendanceRegister = () => {
         break;
     }
   };
-  
+
   return (
     <div>
       <MenuBar />
-      
-      <div>
-        <label>Address:</label>
-        <select onChange={handleAddressSelect} value={selectedAddress}>
-          <option value="" disabled>Select an address</option>
-          {addresses.map(address => (
-            <option key={address} value={address}>{address}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={handlePasswordChange}
-          required
-        />
-      </div>
-      <h1>Attendance</h1>  
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Class Code:</label>
-          <input
-            type="text"
-            value={classCode}
-            onChange={handleClassCodeChange}
-            required
-          />
-        </div>
-        <button type="submit">Register Attendance</button>
-      </form>
+      <Container className="marginTitle">
+        <h2><span className="badge text-bg-secondary">Attendance</span></h2>
+      </Container>
+      <Container className="marginTitle">
+        <Card>
+          <Card.Body>
+            {/* Address Login Section */}
+            <div className="mb-4">
+              <Form>
+                <Form.Group className="mb-3">
+                  <Form.Label>Address:</Form.Label>
+                  <select className="form-select" onChange={handleAddressSelect} value={selectedAddress}>
+                    <option value="" disabled>Select an address</option>
+                    {addresses.map(address => (
+                      <option key={address} value={address}>{address}</option>
+                    ))}
+                  </select>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Password:</Form.Label>
+                  <Form.Control type="password" value={password} onChange={handlePasswordChange} required />
+                </Form.Group>
+              </Form>
+            </div>
 
-      <h2>Generate Class Code</h2>
-      <form onSubmit={handleGenerateClassCode}>
-        <div>
-          <label>Class ID:</label>
-          <input
-            type="text"
-            value={classId}
-            onChange={handleClassIdChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Date:</label>
-          <input
-            type="date"
-            value={date}
-            onChange={handleDateChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Start Time:</label>
-          <input
-            type="time"
-            value={startTime}
-            onChange={handleStartTimeChange}
-            required
-          />
-        </div>
-        <button type="submit">Generate Class Code</button>
-      </form>
+            <Accordion>
 
-      {generatedClassCode && (
-        <div>
-          <h3>Generated Class Code:</h3>
-          <p>{generatedClassCode}</p>
-        </div>
-      )}
+              <Accordion.Item eventKey="1">
+                <Accordion.Header>Take Attendance</Accordion.Header>
+                <Accordion.Body>
+                  <Form onSubmit={handleAttendanceSubmit}>
+                    <Form.Group className="mb-3">
+                      <Form.Control type="text" value={classCode} placeholder='Class Code' onChange={handleClassCodeChange} required />
+                    </Form.Group>
+                    <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                      <button type="submit" className="btn btn-primary">Submit</button>
+                    </div>
+                  </Form>
+                </Accordion.Body>
+              </Accordion.Item>
 
-      <h2>Attendance Records</h2>
-      
-      <input
-        name="address"
-        type="text"
-        value={filterAddress}
-        onChange={handleFilterChange}
-        placeholder='Address / SID'
-      />
-      <input
-        name="classCode"
-        type="text"
-        value={filterClassCode}
-        onChange={handleFilterChange}
-        placeholder='Class Code'
-      />
-      <div>
-        <label>Date: </label>
-        <input
-          name="date"
-          type="date"
-          value={filterDate}
-          onChange={handleFilterChange}
-          placeholder='Date'
-        />
-        <label>Start Time: </label>
-        <input
-          name="startTime"
-          type="time"
-          value={filterStartTime}
-          onChange={handleFilterChange}
-          disabled={filterDate === ""}
-          placeholder='Start Time'
-        />
-        <label>End Time: </label>
-        <input
-          name="endTime"
-          type="time"
-          value={filterEndTime}
-          onChange={handleFilterChange}
-          disabled={filterDate === ""}
-          placeholder='End Time'
-        />
-      </div>
-      <button
-        name='filterClear'
-        onClick={handleFilterChange}
-      >clear</button>
-      
-      
-      <table>
-        <thead>
-          <tr>
-            <th>Address</th>
-            <th>SID</th>
-            <th>Class Code</th>
-            <th>Date</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-        {attendanceData.map((record, index) => (
-          <tr key={index}>
-            <td>{record.address}</td>
-            <td>{record.sid}</td>
-            <td>{record.classCode}</td>
-            <td>{new Date(record.dateTime).toLocaleDateString()}</td>
-            <td>{new Date(record.dateTime).toLocaleTimeString()}</td>
-          </tr>
-        ))}
-          </tbody>
-      </table>
+              <Accordion.Item eventKey="2">
+                <Accordion.Header>Generate Class Code</Accordion.Header>
+                <Accordion.Body>
+                  <Form onSubmit={handleGenerateClassCode}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Class ID:</Form.Label>
+                      <Form.Control type="text" value={classId} onChange={handleClassIdChange} required />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Date:</Form.Label>
+                      <Form.Control type="date" value={date} onChange={handleDateChange} required />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Start Time:</Form.Label>
+                      <Form.Control type="time" value={startTime} onChange={handleStartTimeChange} required />
+                    </Form.Group>
+                    <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                      <button type="submit" className="btn btn-primary">Generate Class Code</button>
+                    </div>
+                  </Form>
+                </Accordion.Body>
+              </Accordion.Item>
+
+              <Accordion.Item eventKey="3">
+                <Accordion.Header>Attendance Records</Accordion.Header>
+                <Accordion.Body>
+                  <Form>
+                    <Form.Group as={Row} className="mb-3">
+                      <Col>
+                        <Form.Control
+                          name="address"
+                          placeholder="Address / SID"
+                          type="text"
+                          value={filterAddress}
+                          onChange={handleFilterChange}
+                        />
+                      </Col>
+                    </Form.Group>
+                    <Row>
+                      <Col sm="6">
+                        <Form.Group className="mb-3">
+                          <Form.Control
+                            name="classCode"
+                            placeholder="Class Code"
+                            type="text"
+                            value={filterClassCode}
+                            onChange={handleFilterChange}
+                          />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Control
+                            name="date"
+                            type="date"
+                            value={filterDate}
+                            onChange={handleFilterChange}
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col sm="6">
+                        <Form.Group className="mb-3">
+                          <Form.Control
+                            name="startTime"
+                            type="time"
+                            value={filterStartTime}
+                            onChange={handleFilterChange}
+                            disabled={!filterDate}
+                          />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Control
+                            name="endTime"
+                            type="time"
+                            value={filterEndTime}
+                            onChange={handleFilterChange}
+                            disabled={!filterDate}
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                      <button
+                        name="filterClear"
+                        onClick={handleFilterChange}
+                        className="btn btn-secondary"
+                        type="button"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </Form>
+                  <hr />
+                  <div style={{ overflowX: 'auto' }}>
+                    <table className="table" style={{ whiteSpace: 'nowrap' }}>
+                      <thead>
+                        <tr>
+                          <th>Address</th>
+                          <th>SID</th>
+                          <th>Class Code</th>
+                          <th>Date</th>
+                          <th>Time</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {attendanceData.map((record, index) => (
+                          <tr key={index}>
+                            <td>{record.address}</td>
+                            <td>{record.sid}</td>
+                            <td>{record.classCode}</td>
+                            <td>{new Date(record.dateTime).toLocaleDateString()}</td>
+                            <td>{new Date(record.dateTime).toLocaleTimeString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Accordion.Body>
+              </Accordion.Item>
+
+
+            </Accordion>
+            <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+              <Modal.Header closeButton>
+                <Modal.Title>Class Code</Modal.Title>
+              </Modal.Header>
+              <Modal.Body style={{ textAlign: 'center' }}>
+                <h3>{generatedClassCode}</h3>
+              </Modal.Body>
+            </Modal>
+          </Card.Body>
+        </Card>
+      </Container>
       <ToastContainer />
     </div>
   );
