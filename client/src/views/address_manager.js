@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Container from 'react-bootstrap/Container';
 import './css/basic_style.css';
 import Form from 'react-bootstrap/Form';
-import { Card, Row, Col } from 'react-bootstrap';
+import { Card, Row, Col, Button, ButtonGroup } from 'react-bootstrap';
 
 const ManageAddresses = () => {
   const [addresses, setAddresses] = useState([]);
@@ -53,7 +53,8 @@ const ManageAddresses = () => {
     setPassword(e.target.value);
   };
 
-  const handleDecryptPrivateKey = () => {
+  const handleDecryptPrivateKey = (e) => {
+    e.preventDefault();
     try {
       const hashedPassword = CryptoJS.SHA256(password).toString();
       const decryptedBytes = CryptoJS.AES.decrypt(data.privateKey, hashedPassword);
@@ -115,82 +116,80 @@ const ManageAddresses = () => {
 
   return (
     <div>
-      <MenuBar />
-      <Container className="marginTitle">
-        <h2><span class="badge text-bg-secondary">Address Manager</span></h2>
-      </Container>
+  <MenuBar />
+  <Container className="marginTitle">
+    <h2><span className="badge text-bg-secondary">Wallet</span></h2>
+  </Container>
 
-      <Container className="marginTitle">
-        <Card>
-          <Card.Body>
-            <h4><span class="badge text-bg-light">Address Control</span></h4>
-            <hr></hr>
-            <p class="d-inline-flex gap-1">
-              <a href="wallet/add_address" class="btn btn-primary" role="button" data-bs-toggle="button">Add Address</a>
-              <a href="wallet/create_address" class="btn btn-primary" role="button" data-bs-toggle="button">Create New </a>
-            </p>
-            <br></br>
-            <hr class="border border-secondary border-3 opacity-75"></hr>
-            <br></br>
-            <h4><span class="badge text-bg-light">Stored Addresses</span></h4>
-            <hr></hr>
-            <Form>
-              <Form.Group as={Row} className="mb-3">
-                <Form.Label column sm="2">
-                  Stored Addresses:
-                </Form.Label>
-                <Col sm="8">
-                  <select class="form-select" onChange={handleAddressSelect} value={selectedAddress}>
-                    <option value="">Select an address</option>
-                    {addresses.map(address => (
-                      <option key={address} value={address}>{address}</option>
-                    ))}
-                  </select>
-                  {selectedAddress && (
-                    <>
-                      <button onClick={handleDeleteAddress}>Delete Address</button>
-                      <a href={`/wallet/register?address=${selectedAddress}`}>
-                        SID Register
-                      </a>
-                      <a href={`/wallet/transaction?address=${selectedAddress}`}>
-                        Transaction
-                      </a>
-                    </>
-                  )}
-                  {data && selectedAddress && (
+  <Container className="marginTitle">
+    <Card>
+      <Card.Body>
+        <h4><span className="badge text-bg-light">Address Manager</span></h4>
+        <hr />
+        <ButtonGroup className="d-inline-flex gap-2">
+          <Button href="wallet/add_address" variant="primary">Add Address</Button>
+          <Button href="wallet/create_address" variant="primary">Create New</Button>
+        </ButtonGroup>
+      </Card.Body>
+    </Card>
+  </Container>
+
+  <Container className="marginTitle">
+    <Card>
+      <Card.Body>
+        <h4><span className="badge text-bg-light">Stored Addresses</span></h4>
+        <hr />
+        <Form onSubmit={handleDecryptPrivateKey}>
+          <Form.Group as={Row} className="mb-3">
+            <Col sm="10">
+              <Form.Control as="select" onChange={handleAddressSelect} value={selectedAddress}>
+                <option value="">Select an address</option>
+                {addresses.map(address => (
+                  <option key={address} value={address}>{address}</option>
+                ))}
+              </Form.Control>
+              {selectedAddress && (
+                <ButtonGroup className="mt-2 d-flex justify-content-between">
+                  <Button href={`/wallet/register?address=${selectedAddress}`} variant="secondary">SID Register</Button>
+                  <Button href={`/wallet/transaction?address=${selectedAddress}`} variant="secondary">Transaction</Button>
+                  <Button variant="danger" onClick={handleDeleteAddress}>Delete</Button>
+                </ButtonGroup>
+              )}
+              {data && selectedAddress && (
+                <div className="mt-3">
+                  <p><strong>Address:</strong> {data.address}</p>
+                  <p><strong>Student ID:</strong> {sid}</p>
+                  <p><strong>Public Key:</strong> {data.publicKey}</p>
+                  {decryptedPrivateKey ? (
+                    <p><strong>Private Key:</strong> {decryptedPrivateKey}</p>
+                  ) : (
                     <div>
-                      <p><strong>Address:</strong> {data.address}</p>
-                      <p><strong>Student ID:</strong> {sid}</p>
-                      <p><strong>Public Key:</strong> {data.publicKey}</p>
-                      {decryptedPrivateKey ? (
-                        <p><strong>Private Key:</strong> {decryptedPrivateKey}</p>
-                      ) : (
-                        <div>
-                          <input
-                            type="password"
-                            placeholder="Enter password to decrypt"
-                            value={password}
-                            onChange={handlePasswordChange}
-                            required
-                          />
-                          <button onClick={handleDecryptPrivateKey}>Decrypt Private Key</button>
-                        </div>
-                      )}
-                      {balance !== null && preTransaction !== null && (
-                        <>
-                          <p><strong>Balance:</strong> {balance}</p>
-                          <p><strong>Pre-Transaction:</strong> {preTransaction}</p>
-                          <p><strong>Total:</strong> {total}</p>
-                        </>
-                      )}
+                      <Form.Control
+                        type="password"
+                        placeholder="Enter password to decrypt"
+                        value={password}
+                        onChange={handlePasswordChange}
+                        required
+                        style={{ width: '100%' }}
+                      />
+                      <Button type="submit" className="mt-2">Decrypt Private Key</Button>
                     </div>
                   )}
-                </Col>
-              </Form.Group>
-            </Form>
-          </Card.Body>
-        </Card>
-      </Container>
+                  {balance !== null && preTransaction !== null && (
+                    <>
+                      <p><strong>Balance:</strong> {balance}</p>
+                      <p><strong>Pre-Transaction:</strong> {preTransaction}</p>
+                      <p><strong>Total:</strong> {total}</p>
+                    </>
+                  )}
+                </div>
+              )}
+            </Col>
+          </Form.Group>
+        </Form>
+      </Card.Body>
+    </Card>
+  </Container>
 
       {/* <h1>Address Manager</h1>
       <a href='wallet/add_address'>Add</a><br></br>
