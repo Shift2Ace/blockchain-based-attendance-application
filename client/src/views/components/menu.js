@@ -14,6 +14,8 @@ const domainUrl = `${protocol}//${hostname}${port ? `:${port}` : ''}`;
 const logoUrl = `${domainUrl}/main-logo-3x.png`;
 
 const MenuBar = () => {
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+
   return (
     <Navbar bg="light" data-bs-theme="light" expand="lg" className="bg-body-tertiary">
       <Container fluid className="marginToleft">
@@ -30,8 +32,7 @@ const MenuBar = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link href="/home">Home</Nav.Link>
-            <Nav.Link href="/node">Node</Nav.Link>
-            <Nav.Link href="/wallet">Wallet</Nav.Link>
+            {isLocalhost && <Nav.Link href="/node">Node</Nav.Link>}            <Nav.Link href="/wallet">Wallet</Nav.Link>
             <Nav.Link href="/attendance">Attendance</Nav.Link>
           </Nav>
         </Navbar.Collapse>
