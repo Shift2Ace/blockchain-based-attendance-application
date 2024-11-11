@@ -1,17 +1,3 @@
 [
-  {
-    "header": {
-      "index": 0,
-      "pre_hash": "",
-      "merkle_root": "",
-      "nonce": 0,
-      "miner": "",
-      "data_len": 0,
-      "TargetDifficulty": 10,
-      "timestamp": 0,
-      "hash": "515dedcc7cc516f263c213d8ef79c9b9b041c95f58ce203c2aec48bbe316b0c5"
-    },
-    "data": [],
-    "output": []
-  }
+
 ]
