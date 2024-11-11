@@ -9,8 +9,6 @@ import SidRegister from './views/sid_register';
 import Attendance from './views/attendance'
 import Transaction from './views/transaction'
 
-import ExamplePage from './views/example';
-
 const AppRouter = () => (
   <Router>
     <Routes>
@@ -21,7 +19,6 @@ const AppRouter = () => (
       <Route path="/wallet/transaction" element={<Transaction />} />
       <Route path="/wallet" element={<AddressManager />} />
       <Route path="/attendance" element={<Attendance />} />
-      <Route path="/example" element={<ExamplePage />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="*" element={<HomePage />} />
     </Routes>

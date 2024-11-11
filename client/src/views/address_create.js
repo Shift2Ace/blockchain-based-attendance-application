@@ -51,6 +51,8 @@ const Wallet = () => {
       localStorage.setItem(`address_${name}_${addressCount}`, JSON.stringify(encryptedData));
       toast.success('Address created successfully!');
       toast.success(`Keys saved as address_${name}_${addressCount}`);
+      setPassword("")
+      setName("")
     } catch (err) {
       toast.error('Failed to create address');
     }
@@ -88,14 +90,14 @@ const Wallet = () => {
     <div>
       <MenuBar />
       <Container className="marginTitle">
-        <h2><span class="badge text-bg-secondary">Create Address</span></h2>
+        <h2><span className="badge text-bg-secondary">Create Address</span></h2>
       </Container>
       <Container className="marginTitle">
-        <Card style={{ width: '400px' }}>
+        <Card style={{ width: '600px' }}>
           <Card.Body>
             <Form onSubmit={handleCreateAddress}>
               <Form.Group className="mb-3">
-                <Form.Label>Name/ID:</Form.Label>
+                <Form.Label>Name:</Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Enter name"
@@ -115,8 +117,8 @@ const Wallet = () => {
               <Form.Group className="mb-3">
                 <Form.Label>Password strength:</Form.Label> {passwordStrength !== null && passwordStrength}
               </Form.Group>
-              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" class="btn btn-primary">Create Address</button>
+              <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" className="btn btn-primary">Create Address</button>
               </div>
             </Form>
             {data && (
@@ -130,37 +132,6 @@ const Wallet = () => {
           </Card.Body>
         </Card>
       </Container>
-
-      {/* <h1>Create Address</h1>
-      <form onSubmit={handleCreateAddress}>
-        <input
-          type="text"
-          placeholder="Enter name"
-          value={name}
-          onChange={handleNameChange}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Enter password"
-          value={password}
-          onChange={handlePasswordChange}
-          required
-        />
-        <div>
-          Password strength: {passwordStrength !== null && passwordStrength}
-        </div>
-        <button type="submit">Create Address</button>
-      </form>
-      {data && (
-        <div>
-          <p><strong>Private Key:</strong> {data.privateKey}</p>
-          <p><strong>Public Key:</strong> {data.publicKey}</p>
-          <p><strong>Address:</strong> {data.address}</p>
-          <p><strong>Hashed Password:</strong> {data.hashedPassword}</p>
-          <p><strong>Data saved in:</strong> {`address_${name}_${Object.keys(localStorage).filter(key => key.startsWith(`address_${name}_`)).length}`}</p>
-        </div>
-      )} */}
       <ToastContainer />
     </div>
   );

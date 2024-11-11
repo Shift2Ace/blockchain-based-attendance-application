@@ -16,11 +16,11 @@ const logoUrl = `${domainUrl}/main-logo-3x.png`;
 const MenuBar = () => {
   return (
     <Navbar bg="light" data-bs-theme="light" expand="lg" className="bg-body-tertiary">
-      <Container className="marginToleft">
+      <Container fluid className="marginToleft">
         <Navbar.Brand href="/home">
           <img
             alt=""
-            src= {logoUrl}
+            src={logoUrl}
             width="180"
             height="35"
             className="d-inline-block align-top"
@@ -33,20 +33,6 @@ const MenuBar = () => {
             <Nav.Link href="/node">Node</Nav.Link>
             <Nav.Link href="/wallet">Wallet</Nav.Link>
             <Nav.Link href="/attendance">Attendance</Nav.Link>
-            <Nav.Link href="/example">Example</Nav.Link>
-
-            {/* <NavDropdown title="Dropdown" id="basic-nav-dropdown">
-                <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.2">
-                  Another action
-                </NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action/3.4">
-                  Separated link
-                </NavDropdown.Item>
-              </NavDropdown> */}
-
           </Nav>
         </Navbar.Collapse>
       </Container>

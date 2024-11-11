@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Form, Button, Container, Card } from 'react-bootstrap';
 import MenuBar from './components/menu';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
@@ -63,7 +64,7 @@ const SidRegister = () => {
       const hashedPassword = CryptoJS.SHA256(password).toString();
 
       if (hashedPassword !== storedData.hashedPassword) {
-        toast.error('Incorrect password');
+        toast.error('Incorrect password'+ hashedPassword);toast.error('Incorrect password'+ storedData.hashedPassword);
         return;
       }
 
@@ -117,7 +118,7 @@ const SidRegister = () => {
         toast.success('SID registered successfully! Redirecting ...');
         setTimeout(() => {
           navigate('/wallet');
-        }, 2000); // Redirect after 6 seconds
+        }, 2000); // Redirect after 2 seconds
       } else {
         toast.error('Incorrect password');
       }
@@ -129,36 +130,46 @@ const SidRegister = () => {
   return (
     <div>
       <MenuBar />
-      <h1>SID Register Page</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Address:</label>
-          <select onChange={handleAddressSelect} value={selectedAddress}>
-            {addresses.map(address => (
-              <option key={address} value={address}>{address}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-          />
-        </div>
-        <div>
-          <label>SID:</label>
-          <input
-            type="text"
-            value={sid}
-            onChange={handleSidChange}
-            required
-          />
-        </div>
-        <button type="submit">Register SID</button>
-      </form>
+      <Container className="marginTitle">
+        <h2><span className="badge text-bg-secondary">SID Register Page</span></h2>
+      </Container>
+      <Container className="marginTitle">
+        <Card style={{ width: '400px' }}>
+          <Card.Body>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3">
+                <Form.Label>Address:</Form.Label>
+                <Form.Control as="select" onChange={handleAddressSelect} value={selectedAddress}>
+                  {addresses.map(address => (
+                    <option key={address} value={address}>{address}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Password:</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={password}
+                  onChange={handlePasswordChange}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>SID:</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={sid}
+                  onChange={handleSidChange}
+                  required
+                />
+              </Form.Group>
+              <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+                <Button variant="primary" type="submit">Register SID</Button>
+              </div>
+            </Form>
+          </Card.Body>
+        </Card>
+      </Container>
       <ToastContainer />
     </div>
   );

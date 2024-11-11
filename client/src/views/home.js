@@ -30,7 +30,7 @@ const HomePage = () => {
     <div>
       <MenuBar />
       <Container className="marginTitle">
-        <h2><span class="badge text-bg-secondary ">Home Page</span></h2>
+        <h2><span className="badge text-bg-secondary ">Home Page</span></h2>
       </Container>
       {/* {data ? (
         <div>
@@ -58,7 +58,7 @@ const HomePage = () => {
               <Card>
                 <Card.Body>
                   <h5 className="text-uppercase text-muted mb-0">Node Network ID</h5>
-                  <span className="h2 font-weight-bold mb-0">{data.node_network_id} <i class="bi bi-key"></i></span>
+                  <span className="h2 font-weight-bold mb-0">{data.node_network_id} <i className="bi bi-key"></i></span>
                 </Card.Body>
               </Card>
             </Col>
@@ -66,7 +66,7 @@ const HomePage = () => {
               <Card>
                 <Card.Body>
                   <h5 className="text-uppercase text-muted mb-0">Host Name</h5>
-                  <span className="h2 font-weight-bold mb-0 text-uppercase">{data.host_name} <i class="bi bi-geo-alt"></i></span>
+                  <span className="h2 font-weight-bold mb-0 text-uppercase">{data.host_name} <i className="bi bi-geo-alt"></i></span>
                 </Card.Body>
               </Card>
             </Col>
@@ -74,7 +74,7 @@ const HomePage = () => {
               <Card>
                 <Card.Body>
                   <h5 className="text-uppercase text-muted mb-0">Server Port</h5>
-                  <span className="h2 font-weight-bold mb-0 text-uppercase">{data.server_port} <i class="bi bi-broadcast-pin"></i></span>
+                  <span className="h2 font-weight-bold mb-0 text-uppercase">{data.server_port} <i className="bi bi-broadcast-pin"></i></span>
                 </Card.Body>
               </Card>
             </Col>
