@@ -85,6 +85,8 @@ const NodePage = () => {
         toast.success(result.message);
       } else if (result.message === 'No block mined') {
         toast.info('Retrying to mine block...');
+      } else if (result.message === 'The hash does not meet a specific difficulty') {
+        toast.info('The hash does not meet a specific difficulty');
       } else {
         toast.error('Failed to mine block');
         break;

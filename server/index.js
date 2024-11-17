@@ -59,7 +59,7 @@ const allowed_url_limiter = (req, res, next) => {
 // Only can post through the localhost
 const localhost_limiter = (req, res, next) => {
   const referer = req.get('Referer');
-  if (referer == 'http://localhost:3000/')  {
+  if (referer == 'http://localhost:3000/') {
     next();
   } else {
     res.status(403).send('Access forbidden: your IP is not allowed');
@@ -67,7 +67,7 @@ const localhost_limiter = (req, res, next) => {
 };
 
 // upload name and email to data/test.json
-app.post('/api/test',allowed_url_limiter, (req, res) => {
+app.post('/api/test', allowed_url_limiter, (req, res) => {
   // get data
   const data = req.body;
   // show data
@@ -76,7 +76,7 @@ app.post('/api/test',allowed_url_limiter, (req, res) => {
   fs.readFile('data/test.json', 'utf8', (err, jsonString) => {
     if (err) {
       console.log('File read failed:', err);
-      return res.status(500).send('Internal Server Error');s
+      return res.status(500).send('Internal Server Error'); s
     }
     const jsonData = JSON.parse(jsonString || '[]');
     // push data
@@ -95,21 +95,21 @@ app.post('/api/test',allowed_url_limiter, (req, res) => {
 // index page of server / get the server_status.json
 app.get('/', (req, res) => {
   fs.readFile('./data/server_status.json', 'utf8', (err, data) => {
-      if (err) {
-          res.status(500).json({ error: 'Error reading file' });
-          return;
-      }
-      try {
-          const jsonData = JSON.parse(data);
-          res.json(jsonData);
-      } catch (parseErr) {
-          res.status(500).json({ error: 'Error parsing JSON' });
-      }
+    if (err) {
+      res.status(500).json({ error: 'Error reading file' });
+      return;
+    }
+    try {
+      const jsonData = JSON.parse(data);
+      res.json(jsonData);
+    } catch (parseErr) {
+      res.status(500).json({ error: 'Error parsing JSON' });
+    }
   });
 });
 
 // join into other node
-app.post('/node/connect_new',localhost_limiter, (req, res) => {
+app.post('/node/connect_new', localhost_limiter, (req, res) => {
   const data = req.body;
   const { host, port } = data;
   const url = `http://${host}:${port}`;
@@ -135,7 +135,7 @@ app.post('/node/connect_new',localhost_limiter, (req, res) => {
       console.error('Error parsing JSON data:', parseErr);
       res.status(500).send('Internal Server Error');
     }
-    
+
 
     //get the new blockchain and other
     //...
@@ -167,27 +167,31 @@ app.post('/wallet/sid_register', (req, res) => {
   let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
   const { index, timestamp, address, sid, signature, publicKey } = req.body;
   data = {
-    index:index,
-    timestamp:timestamp,
-    address:address,
-    sid:sid
+    index: index,
+    timestamp: timestamp,
+    address: address,
+    sid: sid
   }
 
   if (!validator.verifyAddress(publicKey, address)) {
     return res.status(400).send('Address does not match public key');
-  } 
-  
+  }
+
   if (!validator.verifySignature(publicKey, data, signature)) {
     return res.status(400).send('Invalid signature');
   }
 
-  if(!validator.duplicateChecker (blockchainData,applicationData,index,signature)){
+  if (!validator.duplicateChecker(blockchainData, applicationData, index, signature)) {
     return res.status(400).send('Record duplicated');
   }
 
+  if (!validator.replayChecker(applicationData, data)) {
+    return res.status(400).send('Operation limit (Ten seconds)');
+  }
+
   dataToSave = {
-    type:"sid_register",
-    ... req.body
+    type: "sid_register",
+    ...req.body
   }
 
   // Save data to application.json
@@ -206,22 +210,22 @@ app.post('/wallet/transaction', (req, res) => {
   let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
   const { index, timestamp, fromAddress, toAddress, amount, signature, publicKey } = req.body;
   // duplicate check
-  
-  if(!validator.duplicateChecker (blockchainData,applicationData,index,signature)){
+
+  if (!validator.duplicateChecker(blockchainData, applicationData, index, signature)) {
     return res.status(400).send('Record duplicated');
   }
 
   // address check with public key
   if (!validator.verifyAddress(publicKey, fromAddress)) {
     return res.status(400).send('Address does not match public key');
-  } 
+  }
 
   // amount check with balance and pre transaction
-  if(!validator.balanceChecker(blockchainData, applicationData, amount, fromAddress) || amount <= 0){
+  if (!validator.balanceChecker(blockchainData, applicationData, amount, fromAddress) || amount <= 0) {
     return res.status(400).send('Invalid Amount');
   }
 
-  if(!validator.bs58AddressChecker(toAddress) || fromAddress == toAddress){
+  if (!validator.bs58AddressChecker(toAddress) || fromAddress == toAddress) {
     return res.status(400).send('Invalid Address');
   }
 
@@ -232,14 +236,20 @@ app.post('/wallet/transaction', (req, res) => {
     toAddress: toAddress,
     amount: amount
   }
+
   // signature check
   if (!validator.verifySignature(publicKey, data, signature)) {
     return res.status(400).send('Invalid signature');
   }
 
+  // limit operation 
+  if (!validator.replayChecker(applicationData, data)) {
+    return res.status(400).send('Operation limit (Ten seconds)');
+  }
+
   dataToSave = {
-    type:"transaction",
-    ... req.body
+    type: "transaction",
+    ...req.body
   }
 
   fileManger.saveData(dataToSave, './data/application.json').then(success => {
@@ -256,7 +266,7 @@ app.get('/wallet/balance/:address', (req, res) => {
   const address = req.params.address;
   const blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
   let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
-  
+
   try {
     const balance = walletManager.getBalance(blockchainData, address);
     const preTransaction = walletManager.getPendingTransaction(applicationData, address)
@@ -270,12 +280,12 @@ app.get('/wallet/balance/:address', (req, res) => {
 app.get('/wallet/sid/:address', (req, res) => {
   const address = req.params.address;
   const blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
-  const sid = walletManager.getSid(blockchainData,address);
+  const sid = walletManager.getSid(blockchainData, address);
   res.json({ address, sid });
 });
 
 // mine the block
-app.post('/blockchain/mine',localhost_limiter, (req, res) => {
+app.post('/blockchain/mine', localhost_limiter, (req, res) => {
   const address = req.body.address;
   let block = null;
   const startTime = Date.now();
@@ -285,19 +295,24 @@ app.post('/blockchain/mine',localhost_limiter, (req, res) => {
     let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
     recordsToUse = applicationData.slice(0, 8); // Use up to 8 records
     var index = blockchainData.length;
-    block = blockchainManager.createNewBlock(index, blockchainData, recordsToUse, address, blockchainManager.adjustDifficulty(blockchainData, index));
+    block = blockchainManager.createNewBlock(index, blockchainData, recordsToUse, address, blockchainManager.adjustDifficulty(blockchainData, index));    
   }
 
   if (block) {
-    let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
-    applicationData = applicationData.filter(record => 
-      !recordsToUse.some(r => r.index === record.index && r.signature === record.signature)
-    );
-    fs.writeFileSync('data/application.json', JSON.stringify(applicationData, null, 2));
-    let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
-    blockchainData.push(block);
-    fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
-    res.status(200).json({ message: 'Block mined successfully'});
+    //check hash is meet a specific difficulty or not
+    if (!validator.hashDifficultyChecker(block.header.hash, block.header.TargetDifficulty)) {
+      res.status(200).json({ message: 'The hash does not meet a specific difficulty' });
+    }else{
+      let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
+      applicationData = applicationData.filter(record =>
+        !recordsToUse.some(r => r.index === record.index && r.signature === record.signature)
+      );
+      fs.writeFileSync('data/application.json', JSON.stringify(applicationData, null, 2));
+      let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+      blockchainData.push(block);
+      fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
+      res.status(200).json({ message: 'Block mined successfully' });
+    }
   } else {
     res.status(200).json({ message: 'No block mined' });
   }
@@ -318,20 +333,24 @@ app.post('/attendance/add_new', (req, res) => {
   if (!validator.verifyAddress(publicKey, address)) {
     console.log('Address does not match public key');
     return res.status(400).send('Address does not match public key');
-  } 
-  
+  }
+
   if (!validator.verifySignature(publicKey, data, signature)) {
     console.log('Invalid signature');
     return res.status(400).send('Invalid signature');
   }
 
-  if(!validator.duplicateChecker (blockchainData,applicationData,index,signature)){
+  if (!validator.duplicateChecker(blockchainData, applicationData, index, signature)) {
     return res.status(400).send('Record duplicated');
   }
 
+  if (!validator.replayChecker(applicationData, data)) {
+    return res.status(400).send('Operation limit (Ten seconds)');
+  }
+
   dataToSave = {
-    type:"attendance",
-    ... req.body
+    type: "attendance",
+    ...req.body
   }
 
   // Save data to application.json
