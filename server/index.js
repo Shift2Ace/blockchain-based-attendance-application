@@ -128,25 +128,81 @@ app.post('/node/connect_new',localhost_limiter, (req, res) => {
       const { host_name, server_port } = serverStatus;
       my_url = `http://${host_name}:${server_port}`;
 
+      //get blockchain from the node
+      fetch('${url}/blockchain')
+        .then(response => response.json())
+        .then(remoteBlockchain => {
+          //choose the blockchain by longest-chain rule
+          const localBlockchain = JSON.parse(fs.readFileSync('./data/blockchain.json', 'utf8'));
+          //finish the longest rule alg
 
-      // You can now use my_url as needed
-      res.send({ status: 'success', my_url });
+          fs.writeFileSync('./data/blockchain.json', JSON.stringify(updatedBlockchain, null, 2));
+
+          //get the node list from the new node
+          fetch('${url}/nodes')
+            .then(response =>response.json())
+            .then(remoteNodes => {
+              const localNodes = JSON.parse(fs.readFileSync('./data/node_list.json', 'utf8') || '[]');
+              const updatedNodes = R.uniqBy(n => n.url, [...localNodes, { url }, ...remoteNodes]);
+
+              fs.writeFileSync('./data/node_list.json', JSON.stringify(updatedNodes, null, 2));
+
+
+              //send this url to the node
+              fetch('${url}/node/add_new', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({host: host_name, port: server_port, url:my_url})
+              })
+                .then(() => {
+                  console.log('Successfully connected to the new node');
+                  res.send({ status: 'success', my_url });
+                })
+                .catch(err => {
+                  console.error('Error connecting to the new node:', err);
+                  res.status(500).send('Failed to connect to the new node.');
+                  return;
+                });
+            })
+            .catch(err => {
+              console.error('Error fetching nodes from the new node:', err);
+              res.status(500).send('Failed to fetch node data.');
+              return;
+            });
+        })
+        .catch(err => {
+          console.error('Error fetching blockchain from the new node:', err);
+          res.status(500).send('Failed to fetch blockchain data.');
+          return;
+        })
     } catch (parseErr) {
       console.error('Error parsing JSON data:', parseErr);
       res.status(500).send('Internal Server Error');
     }
     
 
-    //get the new blockchain and other
+    //get the new blockchain and other -> done
     //...
     //get the node network id
     //...
-    //get the list of node
+    //get the list of node  -> done
     //...
-    //send the url to the node
+    //send the url to the node -> done
     console.log('Send my url:', my_url);
     //...
   });
+});
+
+//response the blockchain
+app.get('/blockchain', (req, res) => {
+  const blockchainData = JSON.parse(fs.readFileSync('./data/blockchain.json', 'utf8'));
+  res.json(blockchainData);
+});
+
+//response the node data
+app.get('/blockchain', (req, res) => {
+  const nodeList = JSON.parse(fs.readFileSync('./data/node_list.json', 'utf8'));
+  res.json(nodeList);
 });
 
 // add new url to the list of node
