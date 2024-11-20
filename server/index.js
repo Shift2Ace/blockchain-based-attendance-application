@@ -200,7 +200,7 @@ app.get('/blockchain', (req, res) => {
 });
 
 //response the node data
-app.get('/blockchain', (req, res) => {
+app.get('/nodes', (req, res) => {
   const nodeList = JSON.parse(fs.readFileSync('./data/node_list.json', 'utf8'));
   res.json(nodeList);
 });
