@@ -127,22 +127,21 @@ function getAttendance(blockchain, address, classCode, startTime, endTime) {
 }
 
 function detectFork(blockchain, newBlock) {
-    const latestBlock = blockchain[blockchain.length - 1]; // Get the latest block
-    // Check if the new block's index and prehash match the latest block's index and pre_hash
+    const latestBlock = blockchain[blockchain.length - 1]; //get the latest block
     if (newBlock.header.index == latestBlock.header.index && newBlock.header.pre_hash == latestBlock.header.pre_hash) {
 
         console.log(`Fork detected. Saving the latest block to fork${newBlock.header.index}.json`);
 
-        // File name based on the index
+
         const forkFilePath = `../data/fork_${newBlock.header.index}.json`;
 
 
-        // Create this new file and save the newBlock into it
+        //create this new file and save the newBlock into it
         const forkData = [newBlock];
         fs.writeFileSync(forkFilePath, JSON.stringify(forkData, null, 2), 'utf-8');
-        return true; // Return true indicating a fork was detected
+        return true;
     }
-    return false; // If no fork is detected, return false
+    return false; 
 }
 
 function saveBlock(blockchain, newBlock, fork) {
@@ -169,36 +168,34 @@ function saveBlock(blockchain, newBlock, fork) {
 }
 
 
-function resolveFork(mainChain, newBlock) {
-    const forkFilePath = `../data/fork_${newBlock.header.index}.json`; // Path for the fork chain
-    const blockFilePath = './data/blockchain.json'; // Path for the main blockchain
-
-    // Load the fork chain
-    const forkChain = loadChain(forkFilePath);
-
-    if (!Array.isArray(forkChain) || forkChain.length === 0) {
-        console.log('No valid fork detected for this block.');
-        return;
-    }
+function resolveFork(mainChain, forkChain) {
 
     // Calculate chain difficulties starting from the fork index
-    const forkStartIndex = newBlock.header.index;
+    const forkStartIndex = newBlock[0].header.index;
     const mainChainDifficulty = calculateChainDifficulty(mainChain, forkStartIndex);
     const forkChainDifficulty = calculateChainDifficulty(forkChain, forkStartIndex);
 
     console.log(`Main chain difficulty: ${mainChainDifficulty}`);
     console.log(`Fork chain difficulty: ${forkChainDifficulty}`);
 
-    // Decide which chain to keep
-    if (forkChainDifficulty > mainChainDifficulty) {
-        console.log('Fork chain is stronger. Replacing main chain...');
-        fs.writeFileSync(blockFilePath, JSON.stringify(forkChain, null, 2), 'utf-8');
-        console.log('Main chain replaced with fork chain.');
+    const difficultyDifference = forkChainDifficulty - mainChainDifficulty;
+
+    if (difficultyDifference <= -100) {
+        console.log('Main chain is stronger by at least 100. Deleting fork chain...');
+    } else if (difficultyDifference >= 100) {
+        console.log('Fork chain is stronger by at least 100. Replacing main chain...');
+        try {
+            fs.writeFileSync(blockFilePath, JSON.stringify(forkChain, null, 2), 'utf-8');
+            console.log('Main chain replaced with fork chain.');
+        } catch (err) {
+            console.error('Error replacing main chain:', err);
+        }
     } else {
-        console.log('Main chain is stronger. Keeping main chain...');
+        console.log('Difference is less than 100. No action taken.');
+        return;
     }
 
-    // Clear the fork file after decision
+    // Clear the fork chain file in all cases
     try {
         fs.writeFileSync(forkFilePath, JSON.stringify([], null, 2), 'utf-8');
         console.log(`Cleared fork file: ${forkFilePath}`);
@@ -206,7 +203,6 @@ function resolveFork(mainChain, newBlock) {
         console.error(`Error clearing fork file ${forkFilePath}:`, err);
     }
 }
-
 
 
 function calculateChainDifficulty(chain, startIndex) {
@@ -218,17 +214,6 @@ function calculateChainDifficulty(chain, startIndex) {
     return chain
         .filter(block => block && block.header && block.header.index >= startIndex) // Validate block structure
         .reduce((total, block) => total + block.header.index + block.header.TargetDifficulty, 0);
-}
-
-
-function loadChain(filePath) {
-    try {
-        const data = fs.readFileSync(filePath, 'utf-8');
-        return JSON.parse(data);
-    } catch (err) {
-        console.error(`Error loading chain from ${filePath}:`, err);
-        return [];
-    }
 }
 
 
