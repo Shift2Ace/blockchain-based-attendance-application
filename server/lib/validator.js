@@ -99,6 +99,21 @@ function hashDifficultyChecker(hashValue, difficulty) {
     }
 }
 
+//check node chainfile's block. when receive other node block
+function chainFileChecker(blockchain, block){
+    if(blockchain[blockchain.length-1].header.hash !== block.header.pre_hash){
+        return false;
+    }
+
+    for (let i = 0; i < blockchain.length; i++) {
+        if(blockchain[i].header.hash === block.header.hash){
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 module.exports = {
     verifySignature,
     verifyAddress,
@@ -106,5 +121,6 @@ module.exports = {
     balanceChecker,
     bs58AddressChecker,
     replayChecker,
-    hashDifficultyChecker
+    hashDifficultyChecker,
+    chainFileChecker
 };
