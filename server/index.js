@@ -137,9 +137,27 @@ app.post('/node/connect_new', localhost_limiter, (req, res) => {
           //finish the longest rule alg...
           //local blockchain => localBlockchain
           //blockchain from the node => remoteBlockchain
-
+          //you may use the updatedBlockchain for the final bc
+          let updatedBlockchain = null;
           fs.writeFileSync('./data/blockchain.json', JSON.stringify(updatedBlockchain, null, 2));
-
+          //if local blockchain win, change the targe node's blockchain 
+          if (updatedBlockchain == localBlockchain){
+            fetch(`${url}/api/acceptblockchain`, {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify(updatedBlockchain)
+            })
+              .then(response => {
+                console.log(`statusCode: ${response.status}`);
+                return response.text();
+              })
+              .then(data => {
+                console.log(data);
+              })
+              .catch(error => {
+                console.error(error);
+              })
+          }
           //get the node list from the new node
           fetch(`${url}/api/nodes`)
             .then(response =>response.json())
@@ -200,6 +218,13 @@ app.get('/api/nodes', (req, res) => {
   const nodeList = JSON.parse(fs.readFileSync('./data/node_list.json', 'utf8'));
   res.json(nodeList);
 });
+
+//change the local blockchain to node's bc
+app.post('/api/acceptblockchain', (req, res) => {
+  const updatedBlockchain = req.body;
+  fs.writeFileSync('./data/blockchain.json', JSON.stringify(updatedBlockchain, null, 2));
+  res.status(200).json({message: 'Blockchain changed successfully'})
+})
 
 // add new url to the list of node
 app.post('/node/add_new', (req, res) => {
