@@ -129,17 +129,17 @@ app.post('/node/connect_new', localhost_limiter, (req, res) => {
       my_url = `http://${host_name}:${server_port}`;
 
       //get blockchain from the node
-      fetch('${url}/blockchain')
+      fetch(`${url}/api/blockchain`)
         .then(response => response.json())
         .then(remoteBlockchain => {
           //choose the blockchain by longest-chain rule
           const localBlockchain = JSON.parse(fs.readFileSync('./data/blockchain.json', 'utf8'));
-          //finish the longest rule alg
+          //finish the longest rule alg...
 
           fs.writeFileSync('./data/blockchain.json', JSON.stringify(updatedBlockchain, null, 2));
 
           //get the node list from the new node
-          fetch('${url}/nodes')
+          fetch(`${url}/api/nodes`)
             .then(response =>response.json())
             .then(remoteNodes => {
               const localNodes = JSON.parse(fs.readFileSync('./data/node_list.json', 'utf8') || '[]');
@@ -149,7 +149,7 @@ app.post('/node/connect_new', localhost_limiter, (req, res) => {
 
 
               //send this url to the node
-              fetch('${url}/node/add_new', {
+              fetch(`${url}/node/add_new`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({host: host_name, port: server_port, url:my_url})
@@ -182,25 +182,19 @@ app.post('/node/connect_new', localhost_limiter, (req, res) => {
 
 
     //get the new blockchain and other -> done
-    //...
-    //get the node network id
-    //...
     //get the list of node  -> done
-    //...
     //send the url to the node -> done
-    console.log('Send my url:', my_url);
-    //...
   });
 });
 
 //response the blockchain
-app.get('/blockchain', (req, res) => {
+app.get('/api/blockchain', (req, res) => {
   const blockchainData = JSON.parse(fs.readFileSync('./data/blockchain.json', 'utf8'));
   res.json(blockchainData);
 });
 
 //response the node data
-app.get('/nodes', (req, res) => {
+app.get('/api/nodes', (req, res) => {
   const nodeList = JSON.parse(fs.readFileSync('./data/node_list.json', 'utf8'));
   res.json(nodeList);
 });
@@ -371,6 +365,65 @@ app.post('/blockchain/mine', localhost_limiter, (req, res) => {
     }
   } else {
     res.status(200).json({ message: 'No block mined' });
+  }
+  //send the block to all node
+  fs.readFile('data/node_list.json','utf-8',(err, data) => {
+    if (err){
+      console.error("Failed to read node list:",err);
+      return;
+    }
+    try{
+      const nodesData = JSON.parse(data);
+      nodesData.forEach(node => {
+        const { host, port, url } = node;
+        // send the data
+        const targeturl = `${url}/api/acceptblock`;
+        fetch(targeturl, {
+          method: 'POST',
+          headers: {
+          'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(block),
+        })
+        .then(response => {
+          console.log(`statusCode: ${response.status}`);
+          return response.text();
+        })
+        .then(data => {
+          console.log(data);
+        })
+        .catch(error => {
+          console.error(error);
+        })
+        console.log(`Sucessfully send block to ${url}`);
+      })
+    }catch (parseError){
+      console.error("Failed to parse JSON:",parseError)
+    }
+  });
+});
+
+//accept the block from other node
+app.post('/api/acceptblock', (req, res) => {
+  const newBlock = req.body;
+  //push the new block
+  if (newBlock) {
+    //check hash is meet a specific difficulty or not
+    if (!validator.hashDifficultyChecker(block.header.hash, block.header.TargetDifficulty)) {
+      res.status(200).json({ message: 'The hash does not meet a specific difficulty' });
+    }else{
+      let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
+      applicationData = applicationData.filter(record =>
+        !recordsToUse.some(r => r.index === record.index && r.signature === record.signature)
+      );
+      fs.writeFileSync('data/application.json', JSON.stringify(applicationData, null, 2));
+      let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+      blockchainData.push(block);
+      fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
+      res.status(200).json({ message: 'Block mined successfully' });
+    }
+  } else {
+    res.status(200).json({ message: 'No block received' });
   }
 });
 
