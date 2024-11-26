@@ -135,6 +135,8 @@ app.post('/node/connect_new', localhost_limiter, (req, res) => {
           //choose the blockchain by longest-chain rule
           const localBlockchain = JSON.parse(fs.readFileSync('./data/blockchain.json', 'utf8'));
           //finish the longest rule alg...
+          //local blockchain => localBlockchain
+          //blockchain from the node => remoteBlockchain
 
           fs.writeFileSync('./data/blockchain.json', JSON.stringify(updatedBlockchain, null, 2));
 
