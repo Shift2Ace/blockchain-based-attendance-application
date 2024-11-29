@@ -398,21 +398,27 @@ app.post('/blockchain/mine', localhost_limiter, (req, res) => {
 //accept the block from other node
 app.post('/api/acceptblock', (req, res) => {
   const newBlock = req.body;
+  //check fork
+  const blockchainData = JSON.parse(fs.readFileSync('./data/blockchain.json', 'utf8'));
   //push the new block
   if (newBlock) {
-    //check hash is meet a specific difficulty or not
-    if (!validator.hashDifficultyChecker(block.header.hash, block.header.TargetDifficulty)) {
-      res.status(200).json({ message: 'The hash does not meet a specific difficulty' });
-    }else{
-      let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
-      applicationData = applicationData.filter(record =>
-        !recordsToUse.some(r => r.index === record.index && r.signature === record.signature)
-      );
-      fs.writeFileSync('data/application.json', JSON.stringify(applicationData, null, 2));
-      let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
-      blockchainData.push(block);
-      fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
-      res.status(200).json({ message: 'Block mined successfully' });
+    //check if have fork
+    let haveFork = blockchainManager.detectFork(blockchainData, newBlock);
+    if (!haveFork){
+      //check hash is meet a specific difficulty or not
+      if (!validator.hashDifficultyChecker(block.header.hash, block.header.TargetDifficulty)) {
+        res.status(200).json({ message: 'The hash does not meet a specific difficulty' });
+      }else{
+        let applicationData = JSON.parse(fs.readFileSync('data/application.json', 'utf8'));
+        applicationData = applicationData.filter(record =>
+          !recordsToUse.some(r => r.index === record.index && r.signature === record.signature)
+        );
+        fs.writeFileSync('data/application.json', JSON.stringify(applicationData, null, 2));
+        let blockchainData = JSON.parse(fs.readFileSync('data/blockchain.json', 'utf8'));
+        blockchainData.push(block);
+        fs.writeFileSync('data/blockchain.json', JSON.stringify(blockchainData, null, 2));
+        res.status(200).json({ message: 'Block mined successfully' });
+      }
     }
   } else {
     res.status(200).json({ message: 'No block received' });
