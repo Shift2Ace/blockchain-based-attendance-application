@@ -102,10 +102,3 @@ npm install
 ```
 
 
-# Build Docker
-Build the Docker image
-```
-```
-Run Docker container
-```
-```
